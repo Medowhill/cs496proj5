@@ -17,14 +17,26 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.MainActivity">
+        <activity
+            android:name=".activities.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.DiaryActivity"
+            android:screenOrientation="portrait" />
 
+        <service
+            android:name=".services.DiaryService"
+            android:enabled="true" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDAYXRWp2hOE3doW17GfaQkTvaV5GM34lY" />
     </application>
 
 </manifest>

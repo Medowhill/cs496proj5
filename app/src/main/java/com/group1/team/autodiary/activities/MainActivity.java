@@ -2,14 +2,11 @@ package com.group1.team.autodiary.activities;
 
 import android.Manifest;
 import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_OVERLAY = 0;
     private static final int PERMISSION = 0;
 
-    private DiaryService mService;
+    private Button button;
+
     private boolean mRun = false; // whether service is running (user is awake)
 
     @Override
@@ -31,41 +29,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Intent serviceIntent = new Intent(getApplicationContext(), DiaryService.class);
-        final ServiceConnection connection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                mService = ((DiaryService.DiaryBinder) service).getService();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        };
-
-        Button button = (Button) findViewById(R.id.main_button);
+        button = (Button) findViewById(R.id.main_button);
         button.setOnClickListener(v -> {
             if (mRun) { // when user goes to bed
-                // TODO: get data from service instance and start DiaryActivity
-                unbindService(null);
-                stopService(serviceIntent);
-                mService = null;
+                startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
                 mRun = false;
                 button.setText(R.string.main_button_start);
             } else { // when user wakes up
-                startService(serviceIntent);
-                bindService(serviceIntent, connection, BIND_AUTO_CREATE);
-
+                startService(new Intent(getApplicationContext(), DiaryService.class));
                 mRun = true;
                 button.setText(R.string.main_button_finish);
             }
         });
-
-        mRun = isServiceRunning(DiaryService.class);
-        if (mRun) {
-            bindService(serviceIntent, connection, BIND_AUTO_CREATE);
-            button.setText(R.string.main_button_finish);
-        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(getApplicationContext())) {
@@ -83,10 +58,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        mRun = isServiceRunning(DiaryService.class);
+        if (mRun) button.setText(R.string.main_button_finish);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_OVERLAY:
-                if (resultCode != RESULT_OK)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(getApplicationContext()))
                     finish();
                 break;
         }
