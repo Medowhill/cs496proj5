@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Auto Diary</string>
+    <string name="tag">cs496test</string>
+
+    <string name="main_button_start">I wake up!!</string>
+    <string name="main_button_finish">I\'ll go to bed!!</string>
 </resources>
