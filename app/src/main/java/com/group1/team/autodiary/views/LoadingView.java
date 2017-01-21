@@ -56,14 +56,8 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void stop() {
-        if (mThread != null) {
-            mThread.mRun = false;
-            try {
-                mThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        if (mThread != null)
+            mThread.mClear = true;
     }
 
     private int getTextWidth(String str) {
@@ -75,7 +69,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
     private class TextThread extends Thread {
 
         SurfaceHolder mHolder;
-        boolean mRun;
+        boolean mRun, mClear;
 
         TextThread(SurfaceHolder holder) {
             mHolder = holder;
@@ -95,6 +89,8 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
                                 mLoadingIndex = 0;
                         }
                         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+                        if (mClear)
+                            break;
                         canvas.drawText(mLoadings[mLoadingIndex].substring(0, mLoadingLength), (mWidth - getTextWidth(mLoadings[mLoadingIndex])) / 2, mHeight / 2, paint);
                     }
                 } finally {

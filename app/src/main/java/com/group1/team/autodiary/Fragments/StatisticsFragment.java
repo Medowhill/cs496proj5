@@ -15,9 +15,6 @@ import com.group1.team.autodiary.objects.CallLog;
 
 import static android.support.v7.recyclerview.R.styleable.RecyclerView;
 
-/**
- * Created by q on 2017-01-21.
- */
 
 public class StatisticsFragment extends Fragment {
     View view;

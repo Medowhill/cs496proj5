@@ -11,6 +11,7 @@
     <string name="weatherKey">cabb2d8628fa6a58aef8738269211fab</string>
     <string name="weatherUrl">http://api.openweathermap.org/data/2.5/</string>
     <string name="newsUrl">http://m.news.naver.com/rankingList.nhn</string>
+    <string name="newsSelection">.commonlist_tx_headline</string>
     <string name="visionKey">AIzaSyAGgtdf7mYt4jJgFFmaWqpstmCUIjGKPJI</string>
 
     <string name="main_button_start">I wake up!!</string>

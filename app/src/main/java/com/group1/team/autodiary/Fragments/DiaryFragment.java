@@ -8,18 +8,12 @@ import android.view.ViewGroup;
 
 import com.group1.team.autodiary.R;
 
-/**
- * Created by q on 2017-01-21.
- */
 
 public class DiaryFragment extends Fragment {
-    View view;
 
     @Override
-    public View onCreateView(LayoutInflater layoutInflater,
-                             ViewGroup viewGroup, Bundle savedInstanceState) {
-        view = layoutInflater.inflate(R.layout.fragment_diary, null);
-
+    public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle savedInstanceState) {
+        View view = layoutInflater.inflate(R.layout.fragment_diary, null);
         return view;
     }
 }
