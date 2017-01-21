@@ -14,11 +14,14 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.services.DiaryService;
+
+import java.sql.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PACKAGE_USAGE_STATS = 1;
     private static final int REQUEST_NOTIFICATION_LISTENER_ENABLE = 2;
 
-    public static long appStartTime;
+    public static long dayStartTime;
+    public static long dayEndTime;
 
     private Button button;
 
@@ -44,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (mRun) { // when user goes to bed
+                            dayEndTime = System.currentTimeMillis();
+                            Log.d("check", "dayEndTime : " + new Date(dayEndTime).toString());
                             startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
                             mRun = false;
                             button.setText(R.string.main_button_start);
@@ -51,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
                             startService(new Intent(getApplicationContext(), DiaryService.class));
                             mRun = true;
                             button.setText(R.string.main_button_finish);
-                            appStartTime = System.currentTimeMillis();
+                            dayStartTime = System.currentTimeMillis();
+                            Log.d("check", "dayStartTime : " + new Date(dayStartTime).toString());
                         }
                     }
                 });

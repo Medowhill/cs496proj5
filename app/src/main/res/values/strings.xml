@@ -94,4 +94,8 @@
         <item>생각보다 많이</item>
         <item>너무 많이</item>
     </string-array>
+
+    <string name="sec">초</string>
+    <string name="min">분</string>
+    <string name="hour">시간</string>
 </resources>

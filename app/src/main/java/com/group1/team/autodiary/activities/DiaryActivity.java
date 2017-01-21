@@ -1,9 +1,7 @@
 package com.group1.team.autodiary.activities;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -15,26 +13,19 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.google.api.services.vision.v1.model.Property;
@@ -42,14 +33,14 @@ import com.group1.team.autodiary.DiaryUtil;
 import com.group1.team.autodiary.HttpRequest;
 import com.group1.team.autodiary.ImageRecognitionRequest;
 import com.group1.team.autodiary.R;
+import com.group1.team.autodiary.managers.AppUsageStatsManager;
+import com.group1.team.autodiary.managers.CallLogManager;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.ViewPagerAdapter;
+import com.group1.team.autodiary.objects.AppUsage;
 import com.group1.team.autodiary.objects.Weather;
 import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.Music;
-import com.group1.team.autodiary.objects.Place;
-import com.group1.team.autodiary.objects.ViewPagerAdapter;
-import com.group1.team.autodiary.objects.Weather;
 import com.group1.team.autodiary.services.DiaryService;
 import com.group1.team.autodiary.services.NotificationParser;
 import com.group1.team.autodiary.views.LoadingView;
@@ -64,10 +55,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class DiaryActivity extends AppCompatActivity {
 
@@ -103,8 +91,14 @@ public class DiaryActivity extends AppCompatActivity {
 
             mPlans = getPlan(mStart, mCurrent);
             mNextPlans = getPlan(mCurrent, mCurrent + DAY_LENGTH);
-            mCalls = getCallLog(mStart, mCurrent);
-            mUsages = getAppUsageStats(mStart, mCurrent);
+            mCalls = new CallLogManager(getApplicationContext(), mStart, mCurrent).getAllItems();
+            List<UsageStats> temp = new AppUsageStatsManager(getApplicationContext(), mStart, mCurrent).getAllItems();
+            mUsages = new ArrayList<>();
+            if (Build.VERSION.SDK_INT >= 21) {
+                for (UsageStats stats : temp)
+                    mUsages.add(new AppUsage(getApplicationContext(), stats.getPackageName(), stats.getTotalTimeInForeground()));
+            }
+
 
             Log.i(TAG, DiaryUtil.planToDiary(getApplicationContext(), mPlans, true));
             Log.i(TAG, DiaryUtil.planToDiary(getApplicationContext(), mNextPlans, false));
@@ -245,70 +239,6 @@ public class DiaryActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }, IOException::printStackTrace).request();
-    }
-
-    private List<CallLog> getCallLog(long start, long end) {
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_CALL_LOG)
-                == PackageManager.PERMISSION_GRANTED) {
-            Cursor callLogCursor = getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI,
-                    null,
-                    android.provider.CallLog.Calls.DATE + " >= " + start + " and "
-                            + android.provider.CallLog.Calls.DATE + " <= " + end,
-                    null, android.provider.CallLog.Calls.DATE + " DESC");
-
-            int numberIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.NUMBER);
-            int typeIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.TYPE);
-            int dateIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.DATE);
-            int durationIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.DURATION);
-
-            List<CallLog> callLogData = new ArrayList<>();
-
-            if (callLogCursor.getCount() == 0)
-                return callLogData;
-            else {
-                callLogCursor.moveToFirst();
-
-                do {
-                    String phoneNumber = callLogCursor.getString(numberIndex);
-                    String callType = callLogCursor.getString(typeIndex);
-                    String dir = null;
-                    int dirCode = Integer.parseInt(callType);
-                    switch (dirCode) {
-                        case android.provider.CallLog.Calls.OUTGOING_TYPE:
-                            dir = "OUTGOING";
-                            break;
-                        case android.provider.CallLog.Calls.INCOMING_TYPE:
-                            dir = "INCOMING";
-                            break;
-                        case android.provider.CallLog.Calls.MISSED_TYPE:
-                            dir = "MISSED";
-                            break;
-                    }
-                    String callDate = callLogCursor.getString(dateIndex);
-                    Date callDayTime = new Date(Long.valueOf(callDate));
-                    String callDuration = callLogCursor.getString(durationIndex);
-
-                    callLogData.add(new CallLog(phoneNumber, dir, callDayTime, callDuration));
-                } while (callLogCursor.moveToNext());
-
-                return callLogData;
-            }
-        }
-
-        return null;
-    }
-
-    private List<AppUsage> getAppUsageStats(long start, long end) {
-        if (Build.VERSION.SDK_INT < 22)
-            return new ArrayList<>();
-
-        final UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-        List<UsageStats> appUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, start, end);
-
-        List<AppUsage> usages = new ArrayList<>();
-        for (UsageStats stats : appUsageStats)
-            usages.add(new AppUsage(getApplicationContext(), stats.getPackageName(), stats.getTotalTimeInForeground()));
-        return usages;
     }
 
     private void getPlayingMusicInfo() {

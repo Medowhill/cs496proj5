@@ -28,13 +28,16 @@ public class CallLogManager {
     private List<CallLog> callLogs = null;
     private Context mContext = null;
 
-    public CallLogManager(Context c) {
+    public CallLogManager(Context c, long dayStartTime, long dayEndTime) {
         this.mContext = c;
 
         if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG)
                 == PackageManager.PERMISSION_GRANTED) {
             Cursor callLogCursor = mContext.getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI,
-                    null, null, null, android.provider.CallLog.Calls.DATE + " DESC");
+                    null,
+                    android.provider.CallLog.Calls.DATE + " >= " + dayStartTime + " and "
+                            + android.provider.CallLog.Calls.DATE + " <= " + dayEndTime,
+                    null, android.provider.CallLog.Calls.DATE + " DESC");
 
             int numberIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.NUMBER);
             int typeIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.TYPE);
@@ -116,4 +119,6 @@ public class CallLogManager {
 
         return totalCallTime;
     }
+
+    public List<CallLog> getAllItems() { return callLogs; }
 }

@@ -30,16 +30,16 @@ public class AppUsageStatsManager  {
     private List<UsageStats> appUsageStats = null;
     private Context mContext = null;
 
-    public AppUsageStatsManager(Context context, long appStartTime) {
+    public AppUsageStatsManager(Context context, long dayStartTime, long dayEndTime) {
         this.mContext = context;
 
         final UsageStatsManager usageStatsManager =
                 (UsageStatsManager) mContext.getSystemService(Context.USAGE_STATS_SERVICE);
         appUsageStats =
                 usageStatsManager.queryUsageStats(
-                        UsageStatsManager.INTERVAL_DAILY,
-                        appStartTime,
-                        System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+                        UsageStatsManager.INTERVAL_BEST,
+                        dayStartTime,
+                        dayEndTime);
 
         Collections.sort(this.appUsageStats, new UsageTimeDescCompare());
     }
@@ -67,4 +67,6 @@ public class AppUsageStatsManager  {
         }
         return (String) (ai != null ? pm.getApplicationLabel(ai) : "(Unknown Program)");
     }
+
+    public List<UsageStats> getAllItems() { return appUsageStats; }
 }
