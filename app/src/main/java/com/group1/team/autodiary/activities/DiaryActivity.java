@@ -25,6 +25,7 @@ import com.group1.team.autodiary.managers.PhotoManager;
 import com.group1.team.autodiary.managers.PlanManager;
 import com.group1.team.autodiary.managers.WeatherManager;
 import com.group1.team.autodiary.objects.AppUsage;
+import com.group1.team.autodiary.objects.LabelPhoto;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.ViewPagerAdapter;
@@ -52,6 +53,7 @@ public class DiaryActivity extends AppCompatActivity {
     private List<Weather> mWeathers, mForecasts;
     private List<AppUsage> mUsages;
     private List<String> mNews, mPlans, mNextPlans;
+    private LabelPhoto mLabelPhoto;
 
     final private Object mLockObject = new Object();
     private int mFinishedWork = 0;
@@ -80,11 +82,9 @@ public class DiaryActivity extends AppCompatActivity {
                         sendDataToFragment();
                 }
             });
-            new PhotoManager(getApplicationContext()).getPhoto(start, current, (bitmap, date, properties) -> {
-                if (properties != null)
-                    Log.i(TAG, "load photo" + bitmap + date + properties.get(0).getName());
-                else
-                    Log.i(TAG, "load photo");
+            new PhotoManager(getApplicationContext()).getPhoto(start, current, (bitmap, date, annotations) -> {
+                mLabelPhoto = new LabelPhoto(bitmap, annotations, date);
+                Log.i(TAG, "load photo");
                 synchronized (mLockObject) {
                     if (++mFinishedWork == WORK_NUM)
                         sendDataToFragment();
@@ -234,5 +234,9 @@ public class DiaryActivity extends AppCompatActivity {
 
     public CallLogManager getCallLogManager() {
         return mCallLogManager;
+    }
+
+    public LabelPhoto getLabelPhoto() {
+        return mLabelPhoto;
     }
 }

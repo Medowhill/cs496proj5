@@ -17,7 +17,7 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import com.google.api.services.vision.v1.model.FaceAnnotation;
-import com.group1.team.autodiary.objects.Photo;
+import com.group1.team.autodiary.objects.FacePhoto;
 import com.group1.team.autodiary.utils.ImageRecognitionRequest;
 
 import java.io.File;
@@ -34,7 +34,7 @@ public class SelfieManager {
     private WindowManager.LayoutParams mParams;
     private SurfaceView mSurfaceView;
     private Camera mCamera;
-    private Photo[] mPhotos = new Photo[4];
+    private FacePhoto[] mPhotos = new FacePhoto[4];
     private boolean mRun = false;
 
     private Handler mHandler = new Handler() {
@@ -157,11 +157,11 @@ public class SelfieManager {
         new Thread(() -> {
             FaceAnnotation face = ImageRecognitionRequest.getFace(new ImageRecognitionRequest(mContext).request(bitmap, ImageRecognitionRequest.REQUEST_FACE));
             if (face != null) {
-                int anger = Photo.faceToInt(face.getAngerLikelihood());
-                int joy = Photo.faceToInt(face.getJoyLikelihood());
-                int sorrow = Photo.faceToInt(face.getSorrowLikelihood());
-                int surprised = Photo.faceToInt(face.getSurpriseLikelihood());
-                Photo photo = new Photo(System.currentTimeMillis(), anger, joy, sorrow, surprised);
+                int anger = FacePhoto.faceToInt(face.getAngerLikelihood());
+                int joy = FacePhoto.faceToInt(face.getJoyLikelihood());
+                int sorrow = FacePhoto.faceToInt(face.getSorrowLikelihood());
+                int surprised = FacePhoto.faceToInt(face.getSurpriseLikelihood());
+                FacePhoto photo = new FacePhoto(System.currentTimeMillis(), anger, joy, sorrow, surprised);
 
                 boolean save = false;
                 for (int i = 0; i < mPhotos.length; i++) {
@@ -189,7 +189,7 @@ public class SelfieManager {
         }).start();
     }
 
-    public Photo[] getPhotos() {
+    public FacePhoto[] getPhotos() {
         return mPhotos;
     }
 }

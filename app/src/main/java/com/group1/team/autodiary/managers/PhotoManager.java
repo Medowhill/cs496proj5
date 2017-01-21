@@ -9,19 +9,22 @@ import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
+import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Property;
 import com.group1.team.autodiary.utils.ImageRecognitionRequest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoManager {
 
-    private final static String PATH = Environment.getExternalStorageDirectory().getPath() + "DCIM/Camera";
+    private final static String PATH = "/storage/emulated/0/DCIM/Camera/";
 
     public interface Callback {
-        void callback(Bitmap bitmap, long date, List<Property> properties);
+        void callback(Bitmap bitmap, long date, List<EntityAnnotation> annotations);
     }
 
     private Context mContext;
@@ -60,11 +63,12 @@ public class PhotoManager {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = 4;
             try {
+                Log.i("cs496test", PATH + names.get(rand));
                 final Bitmap bitmap = BitmapFactory.decodeFile(PATH + names.get(rand), options);
                 if (bitmap != null) {
                     new Thread(() -> {
                         callback.callback(bitmap, dates.get(rand),
-                                ImageRecognitionRequest.getLabel(new ImageRecognitionRequest(mContext).request(bitmap, ImageRecognitionRequest.REQUEST_LABEL)).getProperties());
+                                ImageRecognitionRequest.getLabel(new ImageRecognitionRequest(mContext).request(bitmap, ImageRecognitionRequest.REQUEST_LABEL)));
                     }).start();
                 } else
                     callback.callback(null, 0, null);

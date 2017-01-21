@@ -25,7 +25,7 @@ import com.google.android.gms.location.places.Places;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.managers.SelfieManager;
 import com.group1.team.autodiary.managers.WeatherManager;
-import com.group1.team.autodiary.objects.Photo;
+import com.group1.team.autodiary.objects.FacePhoto;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
 
@@ -180,7 +180,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         return weathers;
     }
 
-    public Photo[] getPhotos() {
+    public FacePhoto[] getPhotos() {
         return mSelfieManager.getPhotos();
     }
 

@@ -25,12 +25,6 @@ public class AppUsageStatsManager {
             final UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
             List<UsageStats> statsList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, dayStartTime, dayEndTime);
 
-            Collections.sort(statsList, (o1, o2) ->
-                    o1.getTotalTimeInForeground() > o2.getTotalTimeInForeground() ? -1
-                            : o1.getTotalTimeInForeground() < o2.getTotalTimeInForeground() ? 1
-                            : 0
-            );
-
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
             ResolveInfo defaultLauncher = context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
@@ -39,6 +33,7 @@ public class AppUsageStatsManager {
             for (UsageStats stats : statsList)
                 if (!stats.getPackageName().equals(launcherPackageName))
                     appUsageStats.add(new AppUsage(context, stats.getPackageName(), stats.getTotalTimeInForeground()));
+            Collections.sort(appUsageStats);
         }
     }
 

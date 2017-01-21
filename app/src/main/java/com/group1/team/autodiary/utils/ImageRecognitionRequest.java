@@ -38,16 +38,13 @@ public class ImageRecognitionRequest {
         this.mContext = context;
     }
 
-    public static EntityAnnotation getLabel(BatchAnnotateImagesResponse response) {
+    public static List<EntityAnnotation> getLabel(BatchAnnotateImagesResponse response) {
         if (response == null)
             return null;
 
         List<AnnotateImageResponse> responses = response.getResponses();
-        if (!response.isEmpty()) {
-            List<EntityAnnotation> annotations = responses.get(0).getLabelAnnotations();
-            if (annotations != null && !annotations.isEmpty())
-                return annotations.get(0);
-        }
+        if (!response.isEmpty())
+            return responses.get(0).getLabelAnnotations();
         return null;
     }
 

@@ -2,7 +2,7 @@ package com.group1.team.autodiary.objects;
 
 import android.util.Log;
 
-public class Photo {
+public class FacePhoto {
 
     public static final int ANGER = 0, JOY = 1, SORROW = 2, SURPRISE = 3;
 
@@ -22,7 +22,7 @@ public class Photo {
         return -1;
     }
 
-    public Photo(long time, int anger, int joy, int sorrow, int surprise) {
+    public FacePhoto(long time, int anger, int joy, int sorrow, int surprise) {
         this.mTime = time;
         this.mAnger = anger;
         this.mJoy = joy;

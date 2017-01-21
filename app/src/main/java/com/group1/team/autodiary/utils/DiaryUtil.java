@@ -152,18 +152,21 @@ public class DiaryUtil {
             return "";
 
         String str = "";
-        for (String news_ : news)
+        for (String news_ : news) {
+            news_ = news_.replace((char) 8230, ' ');
+            news_ = news_.replace("\"", "");
+            news_ = news_.replaceAll("\'", "");
+            int index;
+            while ((index = news_.indexOf('(')) != -1) {
+                int finIndex = news_.indexOf(')', index);
+                if (finIndex == -1)
+                    break;
+                news_ = news_.substring(0, index) + news_.substring(finIndex + 1);
+            }
             str += news_ + ", ";
+        }
         str = str.substring(0, str.length() - 2);
         str += context.getString(hasLastSound(str) ? R.string.gwa : R.string.wa);
-        str = str.replace((char) 8230, ' ');
-        int index;
-        while ((index = str.indexOf('(')) != -1) {
-            int finIndex = str.indexOf(index, ')');
-            if (finIndex == -1)
-                break;
-            str = str.substring(0, index) + str.substring(finIndex + 1);
-        }
 
         return String.format(context.getString(R.string.diary_news_format), str);
     }
