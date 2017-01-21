@@ -44,7 +44,7 @@ public class ImageRecognitionRequest {
         List<AnnotateImageResponse> responses = response.getResponses();
         if (!response.isEmpty()) {
             List<EntityAnnotation> annotations = responses.get(0).getLabelAnnotations();
-            if (!annotations.isEmpty())
+            if (annotations != null && !annotations.isEmpty())
                 return annotations.get(0);
         }
         return null;
@@ -57,7 +57,7 @@ public class ImageRecognitionRequest {
         List<AnnotateImageResponse> responses = response.getResponses();
         if (!response.isEmpty()) {
             List<FaceAnnotation> annotations = responses.get(0).getFaceAnnotations();
-            if (!annotations.isEmpty())
+            if (annotations != null && !annotations.isEmpty())
                 return annotations.get(0);
         }
         return null;

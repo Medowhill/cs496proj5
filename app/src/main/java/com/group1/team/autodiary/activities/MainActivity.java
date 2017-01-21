@@ -36,17 +36,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         button = (Button) findViewById(R.id.main_button);
-        button.setOnClickListener(v -> {
-            if (mRun) { // when user goes to bed
-                startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
-                mRun = false;
-                button.setText(R.string.main_button_start);
-            } else { // when user wakes up
-                startService(new Intent(getApplicationContext(), DiaryService.class));
-                mRun = true;
-                button.setText(R.string.main_button_finish);
-            }
-        });
+        button.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mRun) { // when user goes to bed
+                            startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
+                            mRun = false;
+                            button.setText(R.string.main_button_start);
+                        } else { // when user wakes up
+                            startService(new Intent(getApplicationContext(), DiaryService.class));
+                            mRun = true;
+                            button.setText(R.string.main_button_finish);
+                        }
+                    }
+                });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(getApplicationContext())) {
@@ -139,6 +143,4 @@ public class MainActivity extends AppCompatActivity {
                 return true;
         return false;
     }
-
-
 }
