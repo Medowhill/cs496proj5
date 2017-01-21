@@ -71,6 +71,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     private List<Weather> weathers = new ArrayList<>();
     private Photo[] photos = new Photo[4];
     private Location mLocation;
+    private long mStart;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -102,6 +103,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "start");
 
+        mStart = System.currentTimeMillis();
         startForeground(1, new Notification());
         new Thread(() -> {
             mGoogleApiClient.connect();
@@ -170,6 +172,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     public void onLocationChanged(Location location) {
         Log.i(TAG, "location");
         mLocation = location;
+        getWeather();
         getPlace();
     }
 
@@ -352,5 +355,9 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
     public Photo[] getPhotos() {
         return photos;
+    }
+
+    public long getStart() {
+        return mStart;
     }
 }

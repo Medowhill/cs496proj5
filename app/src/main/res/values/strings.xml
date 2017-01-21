@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">Auto Diary</string>
     <string name="tag">cs496test</string>
+    <string name="eul">을</string>
+    <string name="leul">를</string>
+    <string name="wa">와</string>
+    <string name="gwa">과</string>
+    <string name="am">오전</string>
+    <string name="pm">오후</string>
 
     <string name="weatherKey">cabb2d8628fa6a58aef8738269211fab</string>
     <string name="weatherUrl">http://api.openweathermap.org/data/2.5/</string>
@@ -16,5 +22,76 @@
         <item>책상 밑으로 떨어트린 지우개 줍는 중</item>
         <item>조심스럽게 일기장 꺼내는 중</item>
         <item>구겨지지 않게 일기장 펴는 중</item>
+    </string-array>
+
+    <string name="diary_weather_format" formatted="false">오늘은 %s고 %s다. 그리고 %s다. 그래서 %s다.\u0020</string>
+    <string-array name="diary_weather_temp">
+        <item>춥</item>
+        <item>쌀쌀하</item>
+        <item>시원하</item>
+        <item>따뜻하</item>
+        <item>덥</item>
+    </string-array>
+    <string-array name="diary_weather_description">
+        <item>눈과 비가 왔</item>
+        <item>눈이 왔</item>
+        <item>비가 왔</item>
+        <item>안개가 꼈</item>
+        <item>흐렸</item>
+        <item>맑았</item>
+    </string-array>
+    <string-array name="diary_weather_humidity">
+        <item>건조했</item>
+        <item>공기가 상쾌했</item>
+        <item>습했</item>
+    </string-array>
+    <string-array name="diary_weather_attitude">
+        <item>힘들었</item>
+        <item>활동하기 편했</item>
+    </string-array>
+
+    <string name="diary_forecast_format" formatted="false">내일은 %s고 %s 것이라고 한다. %s다.\u0020</string>
+    <string-array name="diary_forecast_description">
+        <item>눈과 비가 올</item>
+        <item>눈이 올</item>
+        <item>비가 올</item>
+        <item>안개가 낄</item>
+        <item>흐릴</item>
+        <item>맑을</item>
+    </string-array>
+    <string-array name="diary_forecast_attitude">
+        <item>걱정된</item>
+        <item>기대된</item>
+    </string-array>
+
+    <string name="diary_place_format" formatted="false">%s에 갔다. %s내일은 %s고 싶다.\u0020</string>
+    <string name="diary_place_major_format" formatted="false">%s %d시에는 %s,\u0020</string>
+    <string name="diary_place_extra_format" formatted="false">그 외에도 %s에 갔다.\u0020</string>
+    <string-array name="diary_place_attitude">
+        <item>더 다양한 장소에 방문해보</item>
+        <item>방에서 좀 쉬</item>
+    </string-array>
+
+    <string name="diary_plan_format" formatted="false">오늘은 %s 할 예정이었다. 할 일이 %s는데 계획대로 잘 했는지 생각해 봐야겠다.\u0020</string>
+    <string-array name="diary_plan_attitude">
+        <item>별로 없었</item>
+        <item>많았</item>
+        <item>엄청 많았</item>
+    </string-array>
+    <string name="diary_plan_tomorrow_format" formatted="false">내일은 %s 할 예정이다. %s 하루가 될 것 같다.\u0020</string>
+    <string-array name="diary_plan_tomorrow_attitude">
+        <item>여유로운</item>
+        <item>바쁜</item>
+        <item>정신없는</item>
+    </string-array>
+
+    <string name="diary_news_format" formatted="false">우리 사회에서는 %s 같은 일들이 있었다. 한 번 생각해 봐야 할 문제인 것 같다.\u0020</string>
+
+    <string name="diary_usage_format" formatted="false">오늘 %s 사용했다. 또 핸드폰을 %s 사용했다. %s 사용한 것 같다.\u0020</string>
+    <string name="diary_usage_time_format">H시간 m분</string>
+    <string-array name="diary_usage_attitude">
+        <item>생각보다 적게</item>
+        <item>생각보다 많이</item>
+        <item>너무 많이</item>
     </string-array>
 </resources>
