@@ -14,6 +14,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 
 import com.group1.team.autodiary.R;
@@ -36,17 +37,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         button = (Button) findViewById(R.id.main_button);
-        button.setOnClickListener(v -> {
-            if (mRun) { // when user goes to bed
-                startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
-                mRun = false;
-                button.setText(R.string.main_button_start);
-            } else { // when user wakes up
-                startService(new Intent(getApplicationContext(), DiaryService.class));
-                mRun = true;
-                button.setText(R.string.main_button_finish);
-            }
-        });
+        button.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mRun) { // when user goes to bed
+                            startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
+                            mRun = false;
+                            button.setText(R.string.main_button_start);
+                        } else { // when user wakes up
+                            startService(new Intent(getApplicationContext(), DiaryService.class));
+                            mRun = true;
+                            button.setText(R.string.main_button_finish);
+                        }
+                    }
+                });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(getApplicationContext())) {
@@ -93,11 +98,11 @@ public class MainActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(getApplicationContext()))
                     finish();
                 break;
-            case REQUEST_PACKAGE_USAGE_STATS :
+            case REQUEST_PACKAGE_USAGE_STATS:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !hasPackageUsageStatsPermission())
                     finish();
                 break;
-            case REQUEST_NOTIFICATION_LISTENER_ENABLE :
+            case REQUEST_NOTIFICATION_LISTENER_ENABLE:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !hasNotificationListenerPermission())
                     finish();
                 break;
@@ -139,6 +144,4 @@ public class MainActivity extends AppCompatActivity {
                 return true;
         return false;
     }
-
-
 }

@@ -34,6 +34,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.util.Log;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 import com.google.api.services.vision.v1.model.Property;
 import com.group1.team.autodiary.HttpRequest;
@@ -44,8 +46,11 @@ import com.group1.team.autodiary.objects.ViewPagerAdapter;
 import com.group1.team.autodiary.objects.Weather;
 import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.Music;
+import com.group1.team.autodiary.objects.Place;
+import com.group1.team.autodiary.objects.Weather;
 import com.group1.team.autodiary.services.DiaryService;
 import com.group1.team.autodiary.services.NotificationParser;
+import com.group1.team.autodiary.views.LoadingView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,11 +69,11 @@ import java.util.concurrent.TimeUnit;
 
 public class DiaryActivity extends AppCompatActivity {
 
-    private static final long DAY_LENGTH = 1000L * 3600 * 24, LOADING_PERIOD = 100;
+    private static final long DAY_LENGTH = 1000L * 3600 * 24;
 
-    private LinearLayout layoutBg;
+    private FrameLayout layoutBg;
+    private LoadingView loadingView;
     private ViewPager viewPager;
-    private TextView textViewLoading;
 
     private ViewPagerAdapter viewPagerAdapter;
 
@@ -78,8 +83,6 @@ public class DiaryActivity extends AppCompatActivity {
     private ContentResolver mContentResolver;
 
     private Drawable mBackground;
-    private String[] mLoadings;
-    private int mLoadingIndex = 0, mLoadingLength = 0;
     private boolean mLoading = true;
 
     private final ServiceConnection connection = new ServiceConnection() {
@@ -107,13 +110,6 @@ public class DiaryActivity extends AppCompatActivity {
         }
     };
 
-    private final Handler loadingHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-        }
-    };
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,10 +118,9 @@ public class DiaryActivity extends AppCompatActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         bindService(new Intent(getApplicationContext(), DiaryService.class), connection, BIND_AUTO_CREATE);
 
+        layoutBg = (FrameLayout) findViewById(R.id.diary_layout);
+        loadingView = (LoadingView) findViewById(R.id.diary_loading);
         viewPager = (ViewPager) findViewById(R.id.diary_viewpager);
-        layoutBg = (LinearLayout) findViewById(R.id.diary_layout);
-        textViewLoading = (TextView) findViewById(R.id.diary_textView_loading);
-        mLoadings = getResources().getStringArray(R.array.diary_textView_loading);
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
@@ -144,13 +139,14 @@ public class DiaryActivity extends AppCompatActivity {
             mNextPlans = getPlan(getTodayStart() + DAY_LENGTH);
         }).start();
 
-        new Thread(() -> {
-            while (mLoading) {
-
-            }
-        }).start();
-
         getNews();
+    }
+
+    @Override
+    protected void onDestroy() {
+        loadingView.stop();
+
+        super.onDestroy();
     }
 
     private long getTodayStart() {
