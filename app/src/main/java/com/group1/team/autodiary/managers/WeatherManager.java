@@ -3,7 +3,7 @@ package com.group1.team.autodiary.managers;
 import android.content.Context;
 import android.location.Location;
 
-import com.group1.team.autodiary.HttpRequest;
+import com.group1.team.autodiary.utils.HttpRequest;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.Weather;
 

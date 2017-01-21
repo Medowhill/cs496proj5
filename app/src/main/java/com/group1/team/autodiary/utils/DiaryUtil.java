@@ -1,7 +1,8 @@
-package com.group1.team.autodiary;
+package com.group1.team.autodiary.utils;
 
 import android.content.Context;
 
+import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.AppUsage;
 import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.Place;

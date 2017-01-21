@@ -22,7 +22,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
-import com.group1.team.autodiary.HttpRequest;
+import com.group1.team.autodiary.utils.HttpRequest;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.managers.SelfieManager;
 import com.group1.team.autodiary.objects.Photo;

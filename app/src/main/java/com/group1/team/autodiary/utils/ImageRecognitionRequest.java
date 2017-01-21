@@ -1,4 +1,4 @@
-package com.group1.team.autodiary;
+package com.group1.team.autodiary.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,6 +18,7 @@ import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
+import com.group1.team.autodiary.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

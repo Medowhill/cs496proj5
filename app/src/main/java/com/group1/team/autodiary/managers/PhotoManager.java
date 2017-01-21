@@ -11,7 +11,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 
 import com.google.api.services.vision.v1.model.Property;
-import com.group1.team.autodiary.ImageRecognitionRequest;
+import com.group1.team.autodiary.utils.ImageRecognitionRequest;
 
 import java.util.ArrayList;
 import java.util.List;

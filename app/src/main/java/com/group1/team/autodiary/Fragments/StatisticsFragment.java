@@ -8,12 +8,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.group1.team.autodiary.R;
+import com.group1.team.autodiary.activities.DiaryActivity;
 import com.group1.team.autodiary.activities.MainActivity;
 import com.group1.team.autodiary.managers.AppUsageStatsManager;
 import com.group1.team.autodiary.managers.CallLogManager;
 import com.group1.team.autodiary.objects.CallLog;
-
-import static android.support.v7.recyclerview.R.styleable.RecyclerView;
 
 
 public class StatisticsFragment extends Fragment {
@@ -42,7 +41,10 @@ public class StatisticsFragment extends Fragment {
         ((TextView) view.findViewById(R.id.total_call_time)).setText(String.valueOf(callLogManager.getTotalCallTime()) + getString(R.string.sec));
 
 
-
         return view;
+    }
+
+    public void finishLoadData(DiaryActivity diaryActivity) {
+
     }
 }

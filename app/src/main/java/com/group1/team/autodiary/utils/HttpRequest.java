@@ -1,4 +1,4 @@
-package com.group1.team.autodiary;
+package com.group1.team.autodiary.utils;
 
 import android.support.annotation.NonNull;
 

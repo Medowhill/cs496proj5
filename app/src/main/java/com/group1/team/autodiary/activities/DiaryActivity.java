@@ -3,7 +3,6 @@ package com.group1.team.autodiary.activities;
 import android.app.usage.UsageStats;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -16,8 +15,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
+import com.group1.team.autodiary.Fragments.DiaryFragment;
+import com.group1.team.autodiary.Fragments.StatisticsFragment;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.managers.AppUsageStatsManager;
 import com.group1.team.autodiary.managers.CallLogManager;
@@ -41,9 +41,9 @@ import java.util.List;
 public class DiaryActivity extends AppCompatActivity {
 
     private static final String TAG = "cs496test";
+    private static int WORK_NUM = 3;
     private static final long DAY_LENGTH = 1000L * 3600 * 24;
 
-    private FrameLayout layoutBg;
     private LoadingView loadingView;
     private ViewPager viewPager;
 
@@ -54,45 +54,52 @@ public class DiaryActivity extends AppCompatActivity {
     private List<Weather> mWeathers, mForecasts;
     private List<String> mNews, mPlans, mNextPlans;
     private List<AppUsage> mUsages;
-    private ContentResolver mContentResolver;
 
-    private boolean mLoading = true;
+    private int mFinishedWork = 0;
 
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            mFinishedWork = 0;
             DiaryService diaryService = ((DiaryService.DiaryBinder) service).getService();
-            long mCurrent = System.currentTimeMillis();
-            long mStart = diaryService.getStart();
-
-            new NewsManager(getString(R.string.newsUrl), getString(R.string.newsSelection)).getNews(news -> {
-                mNews = news;
-            });
-            new PhotoManager(getApplicationContext()).getPhoto(mCurrent, mStart, (bitmap, date, properties) -> {
-
-            });
-            new WeatherManager(getApplicationContext()).getForecast(diaryService.getLocation(), mCurrent, mCurrent + DAY_LENGTH, forecasts -> {
-
-            });
-
+            long current = System.currentTimeMillis();
+            long start = diaryService.getStart();
             mPlaces = diaryService.getPlaces();
             mWeathers = diaryService.getWeathers();
-
-            PlanManager planManager = new PlanManager(getApplicationContext());
-            mPlans = planManager.getPlan(mStart, mCurrent);
-            mNextPlans = planManager.getPlan(mCurrent, mCurrent + DAY_LENGTH);
-
-            mCalls = new CallLogManager(getApplicationContext(), mStart, mCurrent).getAllItems();
-            mUsages = new ArrayList<>();
-            if (Build.VERSION.SDK_INT >= 21) {
-                List<UsageStats> temp = new AppUsageStatsManager(getApplicationContext(), mStart, mCurrent).getAllItems();
-                for (UsageStats stats : temp)
-                    mUsages.add(new AppUsage(getApplicationContext(), stats.getPackageName(), stats.getTotalTimeInForeground()));
-            }
-
             diaryService.clearData();
             unbindService(connection);
             stopService(new Intent(getApplicationContext(), DiaryService.class));
+
+            new NewsManager(getString(R.string.newsUrl), getString(R.string.newsSelection)).getNews(news -> {
+                mNews = news;
+                if (++mFinishedWork == WORK_NUM)
+                    sendDataToFragment();
+            });
+            new PhotoManager(getApplicationContext()).getPhoto(current, start, (bitmap, date, properties) -> {
+            });
+            new WeatherManager(getApplicationContext()).getForecast(diaryService.getLocation(), current, current + DAY_LENGTH, forecasts -> {
+                mForecasts = forecasts;
+                if (++mFinishedWork == WORK_NUM)
+                    sendDataToFragment();
+            });
+
+            new Thread(() -> {
+                PlanManager planManager = new PlanManager(getApplicationContext());
+                mPlans = planManager.getPlan(start, current);
+                mNextPlans = planManager.getPlan(current, current + DAY_LENGTH);
+                mCalls = new CallLogManager(getApplicationContext(), start, current).getAllItems();
+                mUsages = new ArrayList<>();
+                if (Build.VERSION.SDK_INT >= 21) {
+                    List<UsageStats> temp = new AppUsageStatsManager(getApplicationContext(), start, current).getAllItems();
+                    for (UsageStats stats : temp)
+                        mUsages.add(new AppUsage(getApplicationContext(), stats.getPackageName(), stats.getTotalTimeInForeground()));
+                }
+
+                if (++mFinishedWork == WORK_NUM)
+                    sendDataToFragment();
+            }).start();
+
+
         }
 
         @Override
@@ -106,12 +113,12 @@ public class DiaryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_diary);
         if (Build.VERSION.SDK_INT >= 19)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
         bindService(new Intent(getApplicationContext(), DiaryService.class), connection, BIND_AUTO_CREATE);
 
-        layoutBg = (FrameLayout) findViewById(R.id.diary_layout);
         loadingView = (LoadingView) findViewById(R.id.diary_loading);
-        viewPager = (ViewPager) findViewById(R.id.diary_viewpager);
 
+        viewPager = (ViewPager) findViewById(R.id.diary_viewpager);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
     }
@@ -119,8 +126,15 @@ public class DiaryActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         loadingView.stop();
-
         super.onDestroy();
+    }
+
+    private void sendDataToFragment() {
+        loadingView.stop();
+        DiaryFragment diaryFragment = (DiaryFragment) viewPagerAdapter.instantiateItem(viewPager, 0);
+        StatisticsFragment statisticsFragment = (StatisticsFragment) viewPagerAdapter.instantiateItem(viewPager, 1);
+        diaryFragment.finishLoadData(this);
+        statisticsFragment.finishLoadData(this);
     }
 
     private void getPlayingMusicInfo() {
@@ -174,5 +188,37 @@ public class DiaryActivity extends AppCompatActivity {
         };
 
         registerReceiver(mReceiver, intentFilter);
+    }
+
+    public List<CallLog> getCalls() {
+        return mCalls;
+    }
+
+    public List<Place> getPlaces() {
+        return mPlaces;
+    }
+
+    public List<Weather> getWeathers() {
+        return mWeathers;
+    }
+
+    public List<Weather> getForecasts() {
+        return mForecasts;
+    }
+
+    public List<String> getNews() {
+        return mNews;
+    }
+
+    public List<String> getPlans() {
+        return mPlans;
+    }
+
+    public List<String> getNextPlans() {
+        return mNextPlans;
+    }
+
+    public List<AppUsage> getUsages() {
+        return mUsages;
     }
 }

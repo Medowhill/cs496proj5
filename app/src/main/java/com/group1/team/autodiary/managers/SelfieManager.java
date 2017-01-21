@@ -17,7 +17,7 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import com.google.api.services.vision.v1.model.FaceAnnotation;
-import com.group1.team.autodiary.ImageRecognitionRequest;
+import com.group1.team.autodiary.utils.ImageRecognitionRequest;
 import com.group1.team.autodiary.objects.Photo;
 
 import java.io.File;
