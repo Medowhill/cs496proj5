@@ -12,7 +12,6 @@ import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,22 +36,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.vision.v1.Vision;
-import com.google.api.services.vision.v1.VisionRequest;
-import com.google.api.services.vision.v1.VisionRequestInitializer;
-import com.google.api.services.vision.v1.model.AnnotateImageRequest;
-import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
-import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.FaceAnnotation;
-import com.google.api.services.vision.v1.model.Feature;
-import com.google.api.services.vision.v1.model.Image;
 import com.group1.team.autodiary.HttpRequest;
-import com.group1.team.autodiary.PackageManagerUtils;
+import com.group1.team.autodiary.ImageRecognitionRequest;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
@@ -60,7 +46,6 @@ import com.group1.team.autodiary.objects.Weather;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -73,8 +58,6 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
     private static String TAG;
     private static final int ON_PERIOD = 10000, OFF_PERIOD = 3000;
-    private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
-    private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
 
     private final IBinder mBinder = new DiaryBinder();
     private GoogleApiClient mGoogleApiClient;
@@ -311,82 +294,15 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     }
 
     private void detectFace(final Bitmap bitmap) {
-        new AsyncTask<Object, Void, String>() {
-            @Override
-            protected String doInBackground(Object... params) {
-                try {
-                    HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
-                    JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
-
-                    VisionRequestInitializer requestInitializer =
-                            new VisionRequestInitializer(getString(R.string.visionKey)) {
-                                @Override
-                                protected void initializeVisionRequest(VisionRequest<?> visionRequest) throws IOException {
-                                    super.initializeVisionRequest(visionRequest);
-                                    String packageName = getPackageName();
-                                    visionRequest.getRequestHeaders().set(ANDROID_PACKAGE_HEADER, packageName);
-                                    String sig = PackageManagerUtils.getSignature(getPackageManager(), packageName);
-                                    visionRequest.getRequestHeaders().set(ANDROID_CERT_HEADER, sig);
-                                }
-                            };
-
-                    Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
-                    builder.setVisionRequestInitializer(requestInitializer);
-
-                    Vision vision = builder.build();
-
-                    BatchAnnotateImagesRequest batchAnnotateImagesRequest = new BatchAnnotateImagesRequest();
-                    batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
-                        AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
-
-                        Image base64EncodedImage = new Image();
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
-                        bitmap.recycle();
-                        byte[] imageBytes = byteArrayOutputStream.toByteArray();
-
-                        base64EncodedImage.encodeContent(imageBytes);
-                        annotateImageRequest.setImage(base64EncodedImage);
-
-                        annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
-                            Feature labelDetection = new Feature();
-                            labelDetection.setType("FACE_DETECTION");
-                            labelDetection.setMaxResults(10);
-                            add(labelDetection);
-                        }});
-                        add(annotateImageRequest);
-                    }});
-
-                    Vision.Images.Annotate annotateRequest = vision.images().annotate(batchAnnotateImagesRequest);
-                    annotateRequest.setDisableGZipContent(true);
-
-                    Log.i(TAG, "sending request");
-                    BatchAnnotateImagesResponse response = annotateRequest.execute();
-                    Log.i(TAG, "get response");
-                    Log.i(TAG, faceResponse(response));
-
-                    return "";
-                } catch (GoogleJsonResponseException e) {
-                    Log.i(TAG, "failed to make API request because " + e.getContent());
-                } catch (IOException e) {
-                    Log.i(TAG, "failed to make API request because of other IOException " + e.getMessage());
-                }
-                return "Cloud Vision API request failed. Check logs for details.";
+        new Thread(() -> {
+            FaceAnnotation face = ImageRecognitionRequest.getFace(new ImageRecognitionRequest(getApplicationContext()).request(bitmap, ImageRecognitionRequest.REQUEST_FACE));
+            if (face != null) {
+                Log.i(TAG, face.getAngerLikelihood());
+                face.getJoyLikelihood();
+                face.getSorrowLikelihood();
+                face.getSurpriseLikelihood();
             }
-
-            protected void onPostExecute(String result) {
-            }
-        }.execute();
-    }
-
-    private String faceResponse(BatchAnnotateImagesResponse response) {
-        String message = "Face: ";
-        List<FaceAnnotation> faces = response.getResponses().get(0).getFaceAnnotations();
-        if (faces != null)
-            for (FaceAnnotation face : faces)
-                message += String.format("anger: %s joy: %s sorrow: %s surprised: %s, ",
-                        face.getAngerLikelihood(), face.getJoyLikelihood(), face.getSorrowLikelihood(), face.getSurpriseLikelihood());
-        return message;
+        }).start();
     }
 
     public Location getLocation() {

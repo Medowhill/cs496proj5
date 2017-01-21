@@ -8,17 +8,27 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.google.api.services.vision.v1.model.Property;
 import com.group1.team.autodiary.HttpRequest;
+import com.group1.team.autodiary.ImageRecognitionRequest;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
@@ -39,19 +49,27 @@ import java.util.List;
 
 public class DiaryActivity extends AppCompatActivity {
 
-    private static final long DAY_LENGTH = 1000L * 3600 * 24;
+    private static final long DAY_LENGTH = 1000L * 3600 * 24, LOADING_PERIOD = 100;
 
-    private List<Place> places;
-    private List<Weather> weathers, forecasts;
-    private List<String> news, plans, nextPlans;
+    private LinearLayout layoutBg;
+    private TextView textViewLoading;
+
+    private List<Place> mPlaces;
+    private List<Weather> mWeathers, mForecasts;
+    private List<String> mNews, mPlans, mNextPlans;
     private ContentResolver mContentResolver;
+
+    private Drawable mBackground;
+    private String[] mLoadings;
+    private int mLoadingIndex = 0, mLoadingLength = 0;
+    private boolean mLoading = true;
 
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             DiaryService diaryService = ((DiaryService.DiaryBinder) service).getService();
-            places = diaryService.getPlaces();
-            weathers = diaryService.getWeathers();
+            mPlaces = diaryService.getPlaces();
+            mWeathers = diaryService.getWeathers();
             getForecast(diaryService.getLocation());
             diaryService.clearData();
 
@@ -64,16 +82,56 @@ public class DiaryActivity extends AppCompatActivity {
         }
     };
 
+    private final Handler bgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            layoutBg.setBackground(mBackground);
+        }
+    };
+
+    private final Handler loadingHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        }
+    };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.activity_diary);
+        if (Build.VERSION.SDK_INT >= 19)
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         bindService(new Intent(getApplicationContext(), DiaryService.class), connection, BIND_AUTO_CREATE);
 
-        plans = getPlan(getTodayStart());
-        nextPlans = getPlan(getTodayStart() + DAY_LENGTH);
+        layoutBg = (LinearLayout) findViewById(R.id.diary_layout);
+        textViewLoading = (TextView) findViewById(R.id.diary_textView_loading);
+        mLoadings = getResources().getStringArray(R.array.diary_textView_loading);
+
+        new Thread(() -> {
+            try {
+                mBackground = getResources().getDrawable(R.drawable.paper);
+                bgHandler.sendEmptyMessage(0);
+            } catch (OutOfMemoryError e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        new Thread(() -> {
+            mPlans = getPlan(getTodayStart());
+            mNextPlans = getPlan(getTodayStart() + DAY_LENGTH);
+        }).start();
+
+        new Thread(() -> {
+            while (mLoading) {
+
+            }
+        }).start();
+
         getNews();
     }
+
+
 
     private long getTodayStart() {
         Calendar calendar = Calendar.getInstance();
@@ -105,13 +163,14 @@ public class DiaryActivity extends AppCompatActivity {
     }
 
     private void getNews() {
+        mNews = new ArrayList<>();
         new Thread(() -> {
             try {
                 Document document = Jsoup.connect(getString(R.string.newsUrl)).get();
                 Elements titles = document.select(".commonlist_tx_headline");
                 for (Element title : titles)
-                    news.add(title.text());
-            } catch (IOException e) {
+                    mNews.add(title.text());
+            } catch (IOException | OutOfMemoryError e) {
                 e.printStackTrace();
             }
         }).start();
@@ -140,12 +199,22 @@ public class DiaryActivity extends AppCompatActivity {
         }
     }
 
+    private void detectLabel(final Bitmap bitmap) {
+        new Thread(() -> {
+            for (Property property : ImageRecognitionRequest.getLabel(
+                    new ImageRecognitionRequest(getApplicationContext()).request(bitmap, ImageRecognitionRequest.REQUEST_LABEL)).getProperties()) {
+                property.getName();
+                property.getValue();
+            }
+        }).start();
+    }
+
     private void getForecast(Location location) {
         new HttpRequest(getString(R.string.weatherUrl) + "forecast?lat=" + location.getLatitude()
                 + "&lon=" + location.getLongitude() + "&APPID=" + getString(R.string.weatherKey),
                 in -> {
                     long start = getTodayStart() + DAY_LENGTH, end = start + DAY_LENGTH;
-                    forecasts = new ArrayList<>();
+                    mForecasts = new ArrayList<>();
                     try {
                         JSONObject object = new JSONObject(new String(in));
                         JSONArray weathers = object.getJSONArray("list");
@@ -154,7 +223,7 @@ public class DiaryActivity extends AppCompatActivity {
                             if (weather.getTime() >= start) {
                                 if (weather.getTime() > end)
                                     break;
-                                forecasts.add(weather);
+                                mForecasts.add(weather);
                             }
                         }
                     } catch (JSONException e) {
