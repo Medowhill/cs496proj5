@@ -27,7 +27,9 @@ import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,6 +40,7 @@ import com.group1.team.autodiary.HttpRequest;
 import com.group1.team.autodiary.ImageRecognitionRequest;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.Place;
+import com.group1.team.autodiary.objects.ViewPagerAdapter;
 import com.group1.team.autodiary.objects.Weather;
 import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.Music;
@@ -64,7 +67,10 @@ public class DiaryActivity extends AppCompatActivity {
     private static final long DAY_LENGTH = 1000L * 3600 * 24, LOADING_PERIOD = 100;
 
     private LinearLayout layoutBg;
+    private ViewPager viewPager;
     private TextView textViewLoading;
+
+    private ViewPagerAdapter viewPagerAdapter;
 
     private List<Place> mPlaces;
     private List<Weather> mWeathers, mForecasts;
@@ -116,9 +122,13 @@ public class DiaryActivity extends AppCompatActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         bindService(new Intent(getApplicationContext(), DiaryService.class), connection, BIND_AUTO_CREATE);
 
+        viewPager = (ViewPager) findViewById(R.id.diary_viewpager);
         layoutBg = (LinearLayout) findViewById(R.id.diary_layout);
         textViewLoading = (TextView) findViewById(R.id.diary_textView_loading);
         mLoadings = getResources().getStringArray(R.array.diary_textView_loading);
+
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(viewPagerAdapter);
 
         new Thread(() -> {
             try {
@@ -127,7 +137,7 @@ public class DiaryActivity extends AppCompatActivity {
             } catch (OutOfMemoryError e) {
                 e.printStackTrace();
             }
-        }).start();
+        });//.start();
 
         new Thread(() -> {
             mPlans = getPlan(getTodayStart());
