@@ -1,72 +1,48 @@
 package com.group1.team.autodiary.managers;
 
-import android.annotation.TargetApi;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.content.pm.ResolveInfo;
+import android.os.Build;
 
-import com.group1.team.autodiary.R;
+import com.group1.team.autodiary.objects.AppUsage;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-/**
- * Created by q on 2017-01-21.
- */
 
-@TargetApi(21)
-public class AppUsageStatsManager  {
-    private List<UsageStats> appUsageStats = null;
-    private Context mContext = null;
+public class AppUsageStatsManager {
+
+    private List<AppUsage> appUsageStats;
 
     public AppUsageStatsManager(Context context, long dayStartTime, long dayEndTime) {
-        this.mContext = context;
+        appUsageStats = new ArrayList<>();
+        if (Build.VERSION.SDK_INT > 21) {
+            final UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+            List<UsageStats> statsList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, dayStartTime, dayEndTime);
 
-        final UsageStatsManager usageStatsManager =
-                (UsageStatsManager) mContext.getSystemService(Context.USAGE_STATS_SERVICE);
-        appUsageStats =
-                usageStatsManager.queryUsageStats(
-                        UsageStatsManager.INTERVAL_BEST,
-                        dayStartTime,
-                        dayEndTime);
+            Collections.sort(statsList, (o1, o2) ->
+                    o1.getTotalTimeInForeground() > o2.getTotalTimeInForeground() ? -1
+                            : o1.getTotalTimeInForeground() < o2.getTotalTimeInForeground() ? 1
+                            : 0
+            );
 
-        Collections.sort(this.appUsageStats, new UsageTimeDescCompare());
-    }
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            ResolveInfo defaultLauncher = context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+            String launcherPackageName = defaultLauncher.activityInfo.packageName;
 
-    static class UsageTimeDescCompare implements Comparator<UsageStats> {
-        @Override
-        public int compare(UsageStats arg0, UsageStats arg1) {
-            return arg0.getTotalTimeInForeground() > arg1.getTotalTimeInForeground() ? -1
-                    : arg0.getTotalTimeInForeground() < arg1.getTotalTimeInForeground() ? 1
-                    : 0;
+            for (UsageStats stats : statsList)
+                if (!stats.getPackageName().equals(launcherPackageName))
+                    appUsageStats.add(new AppUsage(context, stats.getPackageName(), stats.getTotalTimeInForeground()));
         }
     }
 
-    public String getAppName(int position) { return getAppNameFromPackageName(appUsageStats.get(position).getPackageName()); }
-
-    public Long getAppUsageTime(int position) { return appUsageStats.get(position).getTotalTimeInForeground(); }
-
-    private String getAppNameFromPackageName(String packageName) {
-        final PackageManager pm = mContext.getPackageManager();
-        ApplicationInfo ai;
-        try {
-            ai = pm.getApplicationInfo(packageName, 0);
-        } catch (final PackageManager.NameNotFoundException e) {
-            ai = null;
-        }
-        return (String) (ai != null ? pm.getApplicationLabel(ai) : "(Unknown Program)");
+    public List<AppUsage> getAllItems() {
+        return appUsageStats;
     }
-
-    public List<UsageStats> getAllItems() { return appUsageStats; }
 }

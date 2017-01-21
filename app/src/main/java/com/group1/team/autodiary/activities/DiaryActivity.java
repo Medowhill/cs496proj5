@@ -1,6 +1,5 @@
 package com.group1.team.autodiary.activities;
 
-import android.app.usage.UsageStats;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,7 +25,6 @@ import com.group1.team.autodiary.managers.PhotoManager;
 import com.group1.team.autodiary.managers.PlanManager;
 import com.group1.team.autodiary.managers.WeatherManager;
 import com.group1.team.autodiary.objects.AppUsage;
-import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.ViewPagerAdapter;
@@ -41,7 +39,7 @@ import java.util.List;
 public class DiaryActivity extends AppCompatActivity {
 
     private static final String TAG = "cs496test";
-    private static int WORK_NUM = 3;
+    private static int WORK_NUM = 4;
     private static final long DAY_LENGTH = 1000L * 3600 * 24;
 
     private LoadingView loadingView;
@@ -49,57 +47,72 @@ public class DiaryActivity extends AppCompatActivity {
 
     private ViewPagerAdapter viewPagerAdapter;
 
-    private List<CallLog> mCalls;
+    private CallLogManager mCallLogManager;
     private List<Place> mPlaces;
     private List<Weather> mWeathers, mForecasts;
-    private List<String> mNews, mPlans, mNextPlans;
     private List<AppUsage> mUsages;
+    private List<String> mNews, mPlans, mNextPlans;
 
+    final private Object mLockObject = new Object();
     private int mFinishedWork = 0;
 
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mFinishedWork = 0;
+            mPlaces = new ArrayList<>();
+            mWeathers = new ArrayList<>();
+
             DiaryService diaryService = ((DiaryService.DiaryBinder) service).getService();
             long current = System.currentTimeMillis();
             long start = diaryService.getStart();
-            mPlaces = diaryService.getPlaces();
-            mWeathers = diaryService.getWeathers();
+            mPlaces.addAll(diaryService.getPlaces());
+            mWeathers.addAll(diaryService.getWeathers());
             diaryService.clearData();
             unbindService(connection);
             stopService(new Intent(getApplicationContext(), DiaryService.class));
 
             new NewsManager(getString(R.string.newsUrl), getString(R.string.newsSelection)).getNews(news -> {
                 mNews = news;
-                if (++mFinishedWork == WORK_NUM)
-                    sendDataToFragment();
+                Log.i(TAG, "load news");
+                synchronized (mLockObject) {
+                    if (++mFinishedWork == WORK_NUM)
+                        sendDataToFragment();
+                }
             });
-            new PhotoManager(getApplicationContext()).getPhoto(current, start, (bitmap, date, properties) -> {
+            new PhotoManager(getApplicationContext()).getPhoto(start, current, (bitmap, date, properties) -> {
+                if (properties != null)
+                    Log.i(TAG, "load photo" + bitmap + date + properties.get(0).getName());
+                else
+                    Log.i(TAG, "load photo");
+                synchronized (mLockObject) {
+                    if (++mFinishedWork == WORK_NUM)
+                        sendDataToFragment();
+                }
             });
             new WeatherManager(getApplicationContext()).getForecast(diaryService.getLocation(), current, current + DAY_LENGTH, forecasts -> {
                 mForecasts = forecasts;
-                if (++mFinishedWork == WORK_NUM)
-                    sendDataToFragment();
+                Log.i(TAG, "load forecast");
+                synchronized (mLockObject) {
+                    if (++mFinishedWork == WORK_NUM)
+                        sendDataToFragment();
+                }
             });
 
             new Thread(() -> {
                 PlanManager planManager = new PlanManager(getApplicationContext());
                 mPlans = planManager.getPlan(start, current);
                 mNextPlans = planManager.getPlan(current, current + DAY_LENGTH);
-                mCalls = new CallLogManager(getApplicationContext(), start, current).getAllItems();
-                mUsages = new ArrayList<>();
-                if (Build.VERSION.SDK_INT >= 21) {
-                    List<UsageStats> temp = new AppUsageStatsManager(getApplicationContext(), start, current).getAllItems();
-                    for (UsageStats stats : temp)
-                        mUsages.add(new AppUsage(getApplicationContext(), stats.getPackageName(), stats.getTotalTimeInForeground()));
+                mUsages = new AppUsageStatsManager(getApplicationContext(), start, current).getAllItems();
+
+                mCallLogManager = new CallLogManager(getApplicationContext(), start, current);
+
+                Log.i(TAG, "load extra");
+                synchronized (mLockObject) {
+                    if (++mFinishedWork == WORK_NUM)
+                        sendDataToFragment();
                 }
-
-                if (++mFinishedWork == WORK_NUM)
-                    sendDataToFragment();
             }).start();
-
-
         }
 
         @Override
@@ -130,6 +143,7 @@ public class DiaryActivity extends AppCompatActivity {
     }
 
     private void sendDataToFragment() {
+        Log.i(TAG, "send to fragment");
         loadingView.stop();
         DiaryFragment diaryFragment = (DiaryFragment) viewPagerAdapter.instantiateItem(viewPager, 0);
         StatisticsFragment statisticsFragment = (StatisticsFragment) viewPagerAdapter.instantiateItem(viewPager, 1);
@@ -190,10 +204,6 @@ public class DiaryActivity extends AppCompatActivity {
         registerReceiver(mReceiver, intentFilter);
     }
 
-    public List<CallLog> getCalls() {
-        return mCalls;
-    }
-
     public List<Place> getPlaces() {
         return mPlaces;
     }
@@ -220,5 +230,9 @@ public class DiaryActivity extends AppCompatActivity {
 
     public List<AppUsage> getUsages() {
         return mUsages;
+    }
+
+    public CallLogManager getCallLogManager() {
+        return mCallLogManager;
     }
 }

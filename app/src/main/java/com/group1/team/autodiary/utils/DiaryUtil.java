@@ -8,12 +8,12 @@ import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DiaryUtil {
 
@@ -156,6 +156,14 @@ public class DiaryUtil {
             str += news_ + ", ";
         str = str.substring(0, str.length() - 2);
         str += context.getString(hasLastSound(str) ? R.string.gwa : R.string.wa);
+        str = str.replace((char) 8230, ' ');
+        int index;
+        while ((index = str.indexOf('(')) != -1) {
+            int finIndex = str.indexOf(index, ')');
+            if (finIndex == -1)
+                break;
+            str = str.substring(0, index) + str.substring(finIndex + 1);
+        }
 
         return String.format(context.getString(R.string.diary_news_format), str);
     }
@@ -182,10 +190,13 @@ public class DiaryUtil {
             total += usage.getTime();
 
         String str = "";
-        SimpleDateFormat format = new SimpleDateFormat(context.getString(R.string.diary_usage_time_format));
         for (int i = 0; i < Math.min(3, usages.size()); i++) {
             AppUsage usage = usages.get(i);
-            str += usage.getName() + context.getString(hasLastSound(usage.getName()) ? R.string.eul : R.string.leul) + " " + format.format(usage.getTime()) + ", ";
+            long time = usage.getTime();
+
+            str += usage.getName() + context.getString(hasLastSound(usage.getName()) ? R.string.eul : R.string.leul) + " " +
+                    String.format(context.getString(R.string.diary_usage_time_format),
+                            TimeUnit.MILLISECONDS.toHours(time), TimeUnit.MILLISECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(time))) + ", ";
         }
         str = str.substring(0, str.length() - 2);
 
@@ -197,7 +208,10 @@ public class DiaryUtil {
         else
             attitudeIndex = 2;
 
-        return String.format(context.getString(R.string.diary_usage_format), str, format.format(total), context.getResources().getStringArray(R.array.diary_usage_attitude)[attitudeIndex]);
+        return String.format(context.getString(R.string.diary_usage_format), str,
+                String.format(context.getString(R.string.diary_usage_time_format),
+                        TimeUnit.MILLISECONDS.toHours(total), TimeUnit.MILLISECONDS.toMinutes(total) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(total))),
+                context.getResources().getStringArray(R.array.diary_usage_attitude)[attitudeIndex]);
     }
 
     private static boolean hasLastSound(String str) {

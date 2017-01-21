@@ -22,17 +22,13 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
-import com.group1.team.autodiary.utils.HttpRequest;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.managers.SelfieManager;
+import com.group1.team.autodiary.managers.WeatherManager;
 import com.group1.team.autodiary.objects.Photo;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,9 +55,8 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
     @Override
     public void onCreate() {
-        Log.i(TAG, "create");
-
         TAG = getString(R.string.tag);
+        Log.i(TAG, "create");
 
         if (mGoogleApiClient == null)
             mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext()).addConnectionCallbacks(this).addOnConnectionFailedListener(this).
@@ -167,17 +162,10 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     }
 
     private void getWeather() {
-        if (mLocation != null)
-            new HttpRequest(getString(R.string.weatherUrl) + "weather?lat=" + mLocation.getLatitude()
-                    + "&lon=" + mLocation.getLongitude() + "&APPID=" + getString(R.string.weatherKey),
-                    in -> {
-                        try {
-                            weathers.add(new Weather(new JSONObject(new String(in))));
-                            Log.i(TAG, "weather");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }, IOException::printStackTrace).request();
+        new WeatherManager(getApplicationContext()).getWeather(mLocation, weather -> {
+            weathers.add(weather);
+            Log.i(TAG, "weather");
+        });
     }
 
     public Location getLocation() {

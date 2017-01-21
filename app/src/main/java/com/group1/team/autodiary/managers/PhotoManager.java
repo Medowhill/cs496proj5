@@ -51,8 +51,10 @@ public class PhotoManager {
                 }
                 cursor.close();
             }
-            if (dates.size() == 0)
+            if (dates.size() == 0) {
+                callback.callback(null, 0, null);
                 return;
+            }
 
             int rand = (int) (Math.random() * dates.size());
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -64,9 +66,11 @@ public class PhotoManager {
                         callback.callback(bitmap, dates.get(rand),
                                 ImageRecognitionRequest.getLabel(new ImageRecognitionRequest(mContext).request(bitmap, ImageRecognitionRequest.REQUEST_LABEL)).getProperties());
                     }).start();
-                }
+                } else
+                    callback.callback(null, 0, null);
             } catch (OutOfMemoryError e) {
                 e.printStackTrace();
+                callback.callback(null, 0, null);
             }
 
         }

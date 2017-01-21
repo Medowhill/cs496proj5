@@ -89,7 +89,7 @@
     <string name="diary_news_format" formatted="false">우리 사회에서는 %s 같은 일들이 있었다. 한 번 생각해 봐야 할 문제인 것 같다.\u0020</string>
 
     <string name="diary_usage_format" formatted="false">오늘 %s 사용했다. 또 핸드폰을 %s 사용했다. %s 사용한 것 같다.\u0020</string>
-    <string name="diary_usage_time_format">H시간 m분</string>
+    <string name="diary_usage_time_format" formatted="false">%d시간 %d분</string>
     <string-array name="diary_usage_attitude">
         <item>생각보다 적게</item>
         <item>생각보다 많이</item>

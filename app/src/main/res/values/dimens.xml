@@ -3,5 +3,6 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <dimen name="diary_loading_textSize">25sp</dimen>
+    <dimen name="diary_loading_textSize">28sp</dimen>
+    <dimen name="diary_textSize">23sp</dimen>
 </resources>

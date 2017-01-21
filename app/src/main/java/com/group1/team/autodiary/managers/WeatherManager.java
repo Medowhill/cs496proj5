@@ -2,10 +2,11 @@ package com.group1.team.autodiary.managers;
 
 import android.content.Context;
 import android.location.Location;
+import android.util.Log;
 
-import com.group1.team.autodiary.utils.HttpRequest;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.Weather;
+import com.group1.team.autodiary.utils.HttpRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +19,10 @@ import java.util.List;
 public class WeatherManager {
 
     public interface Callback {
+        void callback(Weather weather);
+    }
+
+    public interface Callback2 {
         void callback(List<Weather> forecasts);
     }
 
@@ -27,7 +32,22 @@ public class WeatherManager {
         this.mContext = context;
     }
 
-    public void getForecast(Location location, long start, long end, Callback callback) {
+    public void getWeather(Location location, Callback callback) {
+        if (location == null)
+            return;
+
+        new HttpRequest(mContext.getString(R.string.weatherUrl) + "weather?lat=" + location.getLatitude()
+                + "&lon=" + location.getLongitude() + "&APPID=" + mContext.getString(R.string.weatherKey),
+                in -> {
+                    try {
+                        callback.callback(new Weather(new JSONObject(new String(in))));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }, IOException::printStackTrace).request();
+    }
+
+    public void getForecast(Location location, long start, long end, Callback2 callback) {
         List<Weather> forecasts = new ArrayList<>();
 
         if (location == null) {

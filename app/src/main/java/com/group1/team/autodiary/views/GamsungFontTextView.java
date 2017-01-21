@@ -12,27 +12,11 @@ import android.widget.TextView;
 public class GamsungFontTextView extends TextView {
     static Typeface typeface = null;
 
-    public GamsungFontTextView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        if (typeface == null)
-            typeface = Typeface.createFromAsset(context.getAssets(), "SDMiSaeng.ttf");
-        setTypeface(Typeface.createFromAsset(context.getAssets(), "SDMiSaeng.ttf"));
-        setTextSize(18);
-    }
-
     public GamsungFontTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
         if (typeface == null)
             typeface = Typeface.createFromAsset(context.getAssets(), "SDMiSaeng.ttf");
-        setTypeface(Typeface.createFromAsset(context.getAssets(), "SDMiSaeng.ttf"));
-        setTextSize(18);
-    }
-
-    public GamsungFontTextView(Context context) {
-        super(context);
-        if (typeface == null)
-            typeface = Typeface.createFromAsset(context.getAssets(), "SDMiSaeng.ttf");
-        setTypeface(Typeface.createFromAsset(context.getAssets(), "SDMiSaeng.ttf"));
+        setTypeface(typeface);
         setTextSize(18);
     }
 }

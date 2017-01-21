@@ -23,15 +23,20 @@ public class NewsManager {
 
     public void getNews(Callback callback) {
         List<String> news = new ArrayList<>();
-        new Thread(() -> {
-            try {
-                Document document = Jsoup.connect(mUrl).get();
-                Elements titles = document.select(mSelection);
-                for (int i = 0; i < titles.size(); i += 3)
-                    news.add(titles.get(i).text());
-                callback.callback(news);
-            } catch (IOException | OutOfMemoryError e) {
-                e.printStackTrace();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                {
+                    try {
+                        Document document = Jsoup.connect(mUrl).get();
+                        Elements titles = document.select(mSelection);
+                        for (int i = 0; i < titles.size(); i += 3)
+                            news.add(titles.get(i).text());
+                        callback.callback(news);
+                    } catch (IOException | OutOfMemoryError e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }).start();
     }
