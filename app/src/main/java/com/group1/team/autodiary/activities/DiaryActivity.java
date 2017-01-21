@@ -38,6 +38,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.google.api.services.vision.v1.model.Property;
+import com.group1.team.autodiary.DiaryUtil;
 import com.group1.team.autodiary.HttpRequest;
 import com.group1.team.autodiary.ImageRecognitionRequest;
 import com.group1.team.autodiary.R;
@@ -47,6 +48,7 @@ import com.group1.team.autodiary.objects.Weather;
 import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
+import com.group1.team.autodiary.objects.ViewPagerAdapter;
 import com.group1.team.autodiary.objects.Weather;
 import com.group1.team.autodiary.services.DiaryService;
 import com.group1.team.autodiary.services.NotificationParser;
@@ -69,6 +71,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DiaryActivity extends AppCompatActivity {
 
+    private static final String TAG = "cs496test";
     private static final long DAY_LENGTH = 1000L * 3600 * 24;
 
     private FrameLayout layoutBg;
@@ -77,21 +80,39 @@ public class DiaryActivity extends AppCompatActivity {
 
     private ViewPagerAdapter viewPagerAdapter;
 
+    private List<CallLog> mCalls;
     private List<Place> mPlaces;
     private List<Weather> mWeathers, mForecasts;
     private List<String> mNews, mPlans, mNextPlans;
+    private List<AppUsage> mUsages;
     private ContentResolver mContentResolver;
 
-    private Drawable mBackground;
     private boolean mLoading = true;
 
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             DiaryService diaryService = ((DiaryService.DiaryBinder) service).getService();
+            long mCurrent = System.currentTimeMillis();
+            long mStart = diaryService.getStart();
+
+            getNews();
+            getForecast(diaryService.getLocation(), mCurrent);
             mPlaces = diaryService.getPlaces();
             mWeathers = diaryService.getWeathers();
-            getForecast(diaryService.getLocation());
+
+            mPlans = getPlan(mStart, mCurrent);
+            mNextPlans = getPlan(mCurrent, mCurrent + DAY_LENGTH);
+            mCalls = getCallLog(mStart, mCurrent);
+            mUsages = getAppUsageStats(mStart, mCurrent);
+
+            Log.i(TAG, DiaryUtil.planToDiary(getApplicationContext(), mPlans, true));
+            Log.i(TAG, DiaryUtil.planToDiary(getApplicationContext(), mNextPlans, false));
+            Log.i(TAG, DiaryUtil.placeToDiary(getApplicationContext(), mPlaces));
+            Log.i(TAG, DiaryUtil.weatherToDiary(getApplicationContext(), mWeathers, true));
+            Log.i(TAG, DiaryUtil.usageToDiary(getApplicationContext(), mUsages));
+            Log.i(TAG, DiaryUtil.phoneToDiary(getApplicationContext(), mCalls));
+
             diaryService.clearData();
 
             unbindService(connection);
@@ -100,13 +121,6 @@ public class DiaryActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-        }
-    };
-
-    private final Handler bgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            layoutBg.setBackground(mBackground);
         }
     };
 
@@ -124,22 +138,6 @@ public class DiaryActivity extends AppCompatActivity {
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
-
-        new Thread(() -> {
-            try {
-                mBackground = getResources().getDrawable(R.drawable.paper);
-                bgHandler.sendEmptyMessage(0);
-            } catch (OutOfMemoryError e) {
-                e.printStackTrace();
-            }
-        });//.start();
-
-        new Thread(() -> {
-            mPlans = getPlan(getTodayStart());
-            mNextPlans = getPlan(getTodayStart() + DAY_LENGTH);
-        }).start();
-
-        getNews();
     }
 
     @Override
@@ -149,21 +147,12 @@ public class DiaryActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private long getTodayStart() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime().getTime();
-    }
-
-    private List<String> getPlan(long start) {
+    private List<String> getPlan(long start, long end) {
         List<String> plans = new ArrayList<>();
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
             Uri.Builder eventsUriBuilder = CalendarContract.Instances.CONTENT_URI.buildUpon();
             ContentUris.appendId(eventsUriBuilder, start);
-            ContentUris.appendId(eventsUriBuilder, start + DAY_LENGTH);
+            ContentUris.appendId(eventsUriBuilder, end);
             Uri eventsUri = eventsUriBuilder.build();
 
             Cursor cursor = getContentResolver().query(eventsUri,
@@ -180,21 +169,28 @@ public class DiaryActivity extends AppCompatActivity {
 
     private void getNews() {
         mNews = new ArrayList<>();
+        ArrayList<String> tmp = new ArrayList<>();
         new Thread(() -> {
             try {
                 Document document = Jsoup.connect(getString(R.string.newsUrl)).get();
                 Elements titles = document.select(".commonlist_tx_headline");
                 for (Element title : titles)
-                    mNews.add(title.text());
+                    tmp.add(title.text());
+                for (int i = 0; i < 9; i += 3) {
+                    if (i < tmp.size())
+                        mNews.add(tmp.get(i));
+                    else
+                        break;
+                }
+                Log.i(TAG, DiaryUtil.newsToDiary(getApplicationContext(), mNews));
             } catch (IOException | OutOfMemoryError e) {
                 e.printStackTrace();
             }
         }).start();
     }
 
-    private void getPhoto() {
+    private void getPhoto(long start, long end) {
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            long start = getTodayStart(), end = start + DAY_LENGTH;
             Cursor cursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     new String[]{
                             MediaStore.Images.Media.DATE_TAKEN,
@@ -225,12 +221,14 @@ public class DiaryActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void getForecast(Location location) {
+    private void getForecast(Location location, long start) {
+        mForecasts = new ArrayList<>();
+        if (location == null)
+            return;
         new HttpRequest(getString(R.string.weatherUrl) + "forecast?lat=" + location.getLatitude()
                 + "&lon=" + location.getLongitude() + "&APPID=" + getString(R.string.weatherKey),
                 in -> {
-                    long start = getTodayStart() + DAY_LENGTH, end = start + DAY_LENGTH;
-                    mForecasts = new ArrayList<>();
+                    long end = start + DAY_LENGTH;
                     try {
                         JSONObject object = new JSONObject(new String(in));
                         JSONArray weathers = object.getJSONArray("list");
@@ -242,10 +240,75 @@ public class DiaryActivity extends AppCompatActivity {
                                 mForecasts.add(weather);
                             }
                         }
+                        Log.i(TAG, DiaryUtil.weatherToDiary(getApplicationContext(), mForecasts, false));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }, IOException::printStackTrace).request();
+    }
+
+    private List<CallLog> getCallLog(long start, long end) {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_CALL_LOG)
+                == PackageManager.PERMISSION_GRANTED) {
+            Cursor callLogCursor = getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI,
+                    null,
+                    android.provider.CallLog.Calls.DATE + " >= " + start + " and "
+                            + android.provider.CallLog.Calls.DATE + " <= " + end,
+                    null, android.provider.CallLog.Calls.DATE + " DESC");
+
+            int numberIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.NUMBER);
+            int typeIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.TYPE);
+            int dateIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.DATE);
+            int durationIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.DURATION);
+
+            List<CallLog> callLogData = new ArrayList<>();
+
+            if (callLogCursor.getCount() == 0)
+                return callLogData;
+            else {
+                callLogCursor.moveToFirst();
+
+                do {
+                    String phoneNumber = callLogCursor.getString(numberIndex);
+                    String callType = callLogCursor.getString(typeIndex);
+                    String dir = null;
+                    int dirCode = Integer.parseInt(callType);
+                    switch (dirCode) {
+                        case android.provider.CallLog.Calls.OUTGOING_TYPE:
+                            dir = "OUTGOING";
+                            break;
+                        case android.provider.CallLog.Calls.INCOMING_TYPE:
+                            dir = "INCOMING";
+                            break;
+                        case android.provider.CallLog.Calls.MISSED_TYPE:
+                            dir = "MISSED";
+                            break;
+                    }
+                    String callDate = callLogCursor.getString(dateIndex);
+                    Date callDayTime = new Date(Long.valueOf(callDate));
+                    String callDuration = callLogCursor.getString(durationIndex);
+
+                    callLogData.add(new CallLog(phoneNumber, dir, callDayTime, callDuration));
+                } while (callLogCursor.moveToNext());
+
+                return callLogData;
+            }
+        }
+
+        return null;
+    }
+
+    private List<AppUsage> getAppUsageStats(long start, long end) {
+        if (Build.VERSION.SDK_INT < 22)
+            return new ArrayList<>();
+
+        final UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+        List<UsageStats> appUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, start, end);
+
+        List<AppUsage> usages = new ArrayList<>();
+        for (UsageStats stats : appUsageStats)
+            usages.add(new AppUsage(getApplicationContext(), stats.getPackageName(), stats.getTotalTimeInForeground()));
+        return usages;
     }
 
     private void getPlayingMusicInfo() {

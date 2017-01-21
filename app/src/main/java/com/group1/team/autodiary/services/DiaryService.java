@@ -40,6 +40,7 @@ import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.group1.team.autodiary.HttpRequest;
 import com.group1.team.autodiary.ImageRecognitionRequest;
 import com.group1.team.autodiary.R;
+import com.group1.team.autodiary.objects.Photo;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
 
@@ -49,15 +50,13 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class DiaryService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private static String TAG;
-    private static final int ON_PERIOD = 10000, OFF_PERIOD = 3000;
+    private static final int ON_PERIOD = 30 * 60 * 1000, OFF_PERIOD = 3 * 60 * 1000, WEATHER_PERIOD = 60 * 60 * 1000;
 
     private final IBinder mBinder = new DiaryBinder();
     private GoogleApiClient mGoogleApiClient;
@@ -70,7 +69,9 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
     private List<Place> places = new ArrayList<>();
     private List<Weather> weathers = new ArrayList<>();
+    private Photo[] photos = new Photo[4];
     private Location mLocation;
+    private long mStart;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -102,6 +103,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "start");
 
+        mStart = System.currentTimeMillis();
         startForeground(1, new Notification());
         new Thread(() -> {
             mGoogleApiClient.connect();
@@ -118,6 +120,16 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
                     mHandler.sendEmptyMessage(0);
                 try {
                     Thread.sleep(on ? ON_PERIOD : OFF_PERIOD);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        new Thread(() -> {
+            while (run) {
+                getWeather();
+                try {
+                    Thread.sleep(WEATHER_PERIOD);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -158,7 +170,9 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.i(TAG, "location");
         mLocation = location;
+        getWeather();
         getPlace();
     }
 
@@ -185,14 +199,17 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     public void clearData() {
         places.clear();
         weathers.clear();
+        photos = new Photo[4];
     }
 
     private void getPlace() {
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
             result.setResultCallback((likelyPlaces) -> {
-                if (likelyPlaces.getCount() > 0)
+                if (likelyPlaces.getCount() > 0) {
                     places.add(new Place(System.currentTimeMillis(), likelyPlaces.get(0).getPlace().getName().toString()));
+                    Log.i(TAG, "place");
+                }
                 likelyPlaces.release();
             });
         }
@@ -205,12 +222,12 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
                     in -> {
                         try {
                             weathers.add(new Weather(new JSONObject(new String(in))));
+                            Log.i(TAG, "weather");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }, IOException::printStackTrace).request();
     }
-
 
     private Camera getCamera() {
         Camera camera = null;
@@ -246,23 +263,17 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
                 mCamera.takePicture(null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
-                        File pictureFile = getFile();
-                        if (pictureFile != null) {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(270);
-                            try {
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                                bitmap.recycle();
-                                FileOutputStream fileOutputStream = new FileOutputStream(pictureFile);
-                                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-                                fileOutputStream.close();
-                                Log.i(TAG, "saved");
-                                detectFace(rotatedBitmap);
-                            } catch (OutOfMemoryError | IOException e) {
-                                e.printStackTrace();
-                            }
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(270);
+                        try {
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            bitmap.recycle();
+                            detectFace(rotatedBitmap);
+                        } catch (OutOfMemoryError e) {
+                            e.printStackTrace();
                         }
+
                         mCamera.stopPreview();
                         mCamera.release();
                         mCamera = null;
@@ -281,29 +292,54 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         });
     }
 
-    private File getFile() {
+    private File getFile(long time) {
         if (!Environment.getExternalStorageState().equals("mounted"))
             return null;
 
-        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MyCameraApp");
+        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "AutoDiary");
         if (!dir.exists())
             if (!dir.mkdirs())
                 return null;
 
-        return new File(dir.getPath() + File.separator + "IMG_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".jpg");
+        return new File(dir.getPath() + File.separator + time + ".jpg");
     }
 
     private void detectFace(final Bitmap bitmap) {
         new Thread(() -> {
             FaceAnnotation face = ImageRecognitionRequest.getFace(new ImageRecognitionRequest(getApplicationContext()).request(bitmap, ImageRecognitionRequest.REQUEST_FACE));
             if (face != null) {
-                Log.i(TAG, face.getAngerLikelihood());
-                face.getJoyLikelihood();
-                face.getSorrowLikelihood();
-                face.getSurpriseLikelihood();
+                int anger = Photo.faceToInt(face.getAngerLikelihood());
+                int joy = Photo.faceToInt(face.getJoyLikelihood());
+                int sorrow = Photo.faceToInt(face.getSorrowLikelihood());
+                int surprised = Photo.faceToInt(face.getSurpriseLikelihood());
+                Photo photo = new Photo(System.currentTimeMillis(), anger, joy, sorrow, surprised);
+
+                boolean save = false;
+                for (int i = 0; i < photos.length; i++) {
+                    if (photos[i] == null || photo.getFeeling(i) > photos[i].getFeeling(i)) {
+                        photos[i] = photo;
+                        save = true;
+                        break;
+                    }
+                }
+                if (save) {
+                    File pictureFile = getFile(photo.getTime());
+                    if (pictureFile != null) {
+                        try {
+                            FileOutputStream fileOutputStream = new FileOutputStream(pictureFile);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                            bitmap.recycle();
+                            fileOutputStream.close();
+                            Log.i(TAG, "photo");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         }).start();
     }
+
 
     public Location getLocation() {
         return mLocation;
@@ -315,5 +351,13 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
     public List<Weather> getWeathers() {
         return weathers;
+    }
+
+    public Photo[] getPhotos() {
+        return photos;
+    }
+
+    public long getStart() {
+        return mStart;
     }
 }

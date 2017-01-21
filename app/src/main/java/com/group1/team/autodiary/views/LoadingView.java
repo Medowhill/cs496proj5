@@ -9,7 +9,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -30,7 +29,6 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
         this.setZOrderOnTop(true);
         getHolder().setFormat(PixelFormat.TRANSPARENT);
         getHolder().addCallback(this);
-        mThread = new TextThread(getHolder());
 
         mLoadings = context.getResources().getStringArray(R.array.diary_textView_loading);
         paint = new Paint();
@@ -41,6 +39,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        mThread = new TextThread(getHolder());
         mThread.mRun = true;
         mThread.start();
     }
@@ -57,11 +56,13 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void stop() {
-        mThread.mRun = false;
-        try {
-            mThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (mThread != null) {
+            mThread.mRun = false;
+            try {
+                mThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

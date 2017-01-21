@@ -91,7 +91,6 @@ public class ImageRecognitionRequest {
                 Image base64EncodedImage = new Image();
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
-                bitmap.recycle();
                 byte[] imageBytes = byteArrayOutputStream.toByteArray();
 
                 base64EncodedImage.encodeContent(imageBytes);
