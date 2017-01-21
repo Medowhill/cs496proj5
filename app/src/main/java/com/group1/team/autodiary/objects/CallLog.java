@@ -11,12 +11,14 @@ public class CallLog {
     private String dir;
     private Date callDayTime;
     private String callDuration;
+    private String callName;
 
-    public CallLog(String phoneNumber, String dir, Date callDayTime, String callDuration) {
+    public CallLog(String phoneNumber, String dir, Date callDayTime, String callDuration, String callName) {
         this.phoneNumber = phoneNumber;
         this.dir = dir;
         this.callDayTime = callDayTime;
         this.callDuration = callDuration;
+        this.callName = callName;
     }
 
     public String getPhoneNumber() { return phoneNumber; }
@@ -34,4 +36,8 @@ public class CallLog {
     public String getCallDuration() { return callDuration; }
 
     public void setCallDuration(String callDuration) { this.callDuration = callDuration; }
+
+    public String getName() { return callName; }
+
+    public void setName(String callName) { this.callName = callName; }
 }

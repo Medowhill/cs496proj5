@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PACKAGE_USAGE_STATS = 1;
     private static final int REQUEST_NOTIFICATION_LISTENER_ENABLE = 2;
 
+    public static long appStartTime;
+
     private Button button;
 
     private boolean mRun = false; // whether service is running (user is awake)
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
                             startService(new Intent(getApplicationContext(), DiaryService.class));
                             mRun = true;
                             button.setText(R.string.main_button_finish);
+                            appStartTime = System.currentTimeMillis();
                         }
                     }
                 });

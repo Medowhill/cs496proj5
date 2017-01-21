@@ -1,7 +1,8 @@
-package com.group1.team.autodiary.objects;
+package com.group1.team.autodiary.managers;
 
 import android.annotation.TargetApi;
 import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -18,23 +19,28 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by q on 2017-01-21.
  */
 
 @TargetApi(21)
-public class AppUsageStatsAdapter extends ArrayAdapter<UsageStats> {
-
-    private LayoutInflater inflater = null;
+public class AppUsageStatsManager  {
     private List<UsageStats> appUsageStats = null;
     private Context mContext = null;
 
-    public AppUsageStatsAdapter(Context context, List<UsageStats> appUsageStats) {
-        super(context, R.layout.appusagestats_item, appUsageStats);
-        this.inflater = LayoutInflater.from(context);
+    public AppUsageStatsManager(Context context, long appStartTime) {
         this.mContext = context;
-        this.appUsageStats = appUsageStats;
+
+        final UsageStatsManager usageStatsManager =
+                (UsageStatsManager) mContext.getSystemService(Context.USAGE_STATS_SERVICE);
+        appUsageStats =
+                usageStatsManager.queryUsageStats(
+                        UsageStatsManager.INTERVAL_DAILY,
+                        appStartTime,
+                        System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+
         Collections.sort(this.appUsageStats, new UsageTimeDescCompare());
     }
 
@@ -47,39 +53,9 @@ public class AppUsageStatsAdapter extends ArrayAdapter<UsageStats> {
         }
     }
 
-    @Override
-    public int getCount() {
-        return super.getCount();
-    }
+    public String getAppName(int position) { return getAppNameFromPackageName(appUsageStats.get(position).getPackageName()); }
 
-    @Override
-    public UsageStats getItem(int position) {
-        return super.getItem(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @NonNull
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        View v = convertView;
-
-        if(v == null)
-            v = inflater.inflate(R.layout.appusagestats_item, null);
-
-        ((TextView)v.findViewById(R.id.appusagestats_package_name))
-                .setText(getAppNameFromPackageName(appUsageStats.get(position).getPackageName()));
-        ((TextView)v.findViewById(R.id.appusagestats_last_time_stamp))
-                .setText(String.valueOf(new Date(appUsageStats.get(position).getLastTimeStamp())));
-        ((TextView)v.findViewById(R.id.appusagestats_total_time_in_foreground))
-                .setText(String.valueOf(appUsageStats.get(position).getTotalTimeInForeground()) + "secs");
-
-        return v;
-    }
+    public Long getAppUsageTime(int position) { return appUsageStats.get(position).getTotalTimeInForeground(); }
 
     private String getAppNameFromPackageName(String packageName) {
         final PackageManager pm = mContext.getPackageManager();

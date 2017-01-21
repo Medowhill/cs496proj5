@@ -248,67 +248,6 @@ public class DiaryActivity extends AppCompatActivity {
                 }, IOException::printStackTrace).request();
     }
 
-    private List<CallLog> getCallLog() {
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_CALL_LOG)
-                == PackageManager.PERMISSION_GRANTED) {
-            Cursor callLogCursor = getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI,
-                    null, null, null, android.provider.CallLog.Calls.DATE + " DESC");
-
-            int numberIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.NUMBER);
-            int typeIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.TYPE);
-            int dateIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.DATE);
-            int durationIndex = callLogCursor.getColumnIndex(android.provider.CallLog.Calls.DURATION);
-
-            List<CallLog> callLogData = new ArrayList<>();
-
-            if (callLogCursor.getCount() == 0)
-                return callLogData;
-            else {
-                callLogCursor.moveToFirst();
-
-                do {
-                    String phoneNumber = callLogCursor.getString(numberIndex);
-                    String callType = callLogCursor.getString(typeIndex);
-                    String dir = null;
-                    int dirCode = Integer.parseInt(callType);
-                    switch (dirCode) {
-                        case android.provider.CallLog.Calls.OUTGOING_TYPE:
-                            dir = "OUTGOING";
-                            break;
-                        case android.provider.CallLog.Calls.INCOMING_TYPE:
-                            dir = "INCOMING";
-                            break;
-                        case android.provider.CallLog.Calls.MISSED_TYPE:
-                            dir = "MISSED";
-                            break;
-                    }
-                    String callDate = callLogCursor.getString(dateIndex);
-                    Date callDayTime = new Date(Long.valueOf(callDate));
-                    String callDuration = callLogCursor.getString(durationIndex);
-
-                    callLogData.add(new CallLog(phoneNumber, dir, callDayTime, callDuration));
-                } while (callLogCursor.moveToNext());
-
-                return callLogData;
-            }
-        }
-
-        return null;
-    }
-
-    @TargetApi(21)
-    private List<UsageStats> getAppUsageStats() {
-        final UsageStatsManager usageStatsManager =
-                (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-        List<UsageStats> appUsageStats =
-                usageStatsManager.queryUsageStats(
-                        UsageStatsManager.INTERVAL_DAILY,
-                        System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1),
-                        System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
-
-        return appUsageStats;
-    }
-
     private void getPlayingMusicInfo() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.android.music.metachanged");
