@@ -9,4 +9,12 @@
 
     <string name="main_button_start">I wake up!!</string>
     <string name="main_button_finish">I\'ll go to bed!!</string>
+
+    <string-array name="diary_textView_loading">
+        <item>필통에서 연필 꺼내는 중</item>
+        <item>연필 뾰족하게 깎는 중</item>
+        <item>책상 밑으로 떨어트린 지우개 줍는 중</item>
+        <item>조심스럽게 일기장 꺼내는 중</item>
+        <item>구겨지지 않게 일기장 펴는 중</item>
+    </string-array>
 </resources>
