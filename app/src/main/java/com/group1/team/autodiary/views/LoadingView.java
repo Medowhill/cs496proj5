@@ -9,6 +9,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -16,7 +17,7 @@ import com.group1.team.autodiary.R;
 
 public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final int LOADING_PERIOD = 200;
+    private static final int LOADING_PERIOD = 100, WAITING_PERIOD = 500;
 
     private TextThread mThread;
     private String[] mLoadings;
@@ -30,7 +31,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().setFormat(PixelFormat.TRANSPARENT);
         getHolder().addCallback(this);
 
-        mLoadings = context.getResources().getStringArray(R.array.diary_textView_loading);
+        mLoadings = context.getResources().getStringArray(R.array.diary_text_loading);
         paint = new Paint();
         paint.setTextSize(getResources().getDimensionPixelSize(R.dimen.diary_loading_textSize));
         paint.setColor(Color.BLACK);
@@ -56,8 +57,14 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void stop() {
-        if (mThread != null)
+        if (mThread != null) {
             mThread.mClear = true;
+            try {
+                mThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private int getTextWidth(String str) {
@@ -66,9 +73,17 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
         return bounds.width();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (mThread == null)
+            return false;
+
+        return !mThread.mClear;
+    }
+
     private class TextThread extends Thread {
 
-        SurfaceHolder mHolder;
+        final SurfaceHolder mHolder;
         boolean mRun, mClear;
 
         TextThread(SurfaceHolder holder) {
@@ -80,18 +95,22 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
             Canvas canvas;
             while (mRun) {
                 canvas = null;
+                boolean wait = false;
                 try {
                     canvas = mHolder.lockCanvas(null);
                     synchronized (mHolder) {
                         if (++mLoadingLength > mLoadings[mLoadingIndex].length()) {
                             mLoadingLength = 0;
+                            wait = true;
                             if (++mLoadingIndex >= mLoadings.length)
                                 mLoadingIndex = 0;
                         }
-                        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+                        if (canvas != null)
+                            canvas.drawColor(0, PorterDuff.Mode.CLEAR);
                         if (mClear)
                             break;
-                        canvas.drawText(mLoadings[mLoadingIndex].substring(0, mLoadingLength), (mWidth - getTextWidth(mLoadings[mLoadingIndex])) / 2, mHeight / 2, paint);
+                        if (canvas != null)
+                            canvas.drawText(mLoadings[mLoadingIndex].substring(0, mLoadingLength), (mWidth - getTextWidth(mLoadings[mLoadingIndex])) / 2, mHeight / 2, paint);
                     }
                 } finally {
                     if (canvas != null)
@@ -99,8 +118,9 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
                 try {
-                    Thread.sleep(LOADING_PERIOD);
+                    Thread.sleep(wait ? WAITING_PERIOD : LOADING_PERIOD);
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }

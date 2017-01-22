@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.group1.team.autodiary.R;
@@ -20,18 +21,31 @@ import com.group1.team.autodiary.utils.DiaryUtil;
 
 public class DiaryFragment extends Fragment {
 
-    private TextView textView, textViewLabel;
-    private ImageView imageViewLabel;
+    private LinearLayout layout, layoutLabel, layoutFace;
+    private TextView textView, textViewDate, textViewLabel, textViewFace, textViewLabelTitle, textViewFaceTitle;
+    private ImageView imageViewLabel, imageViewFace;
 
-    private String mDiary, mLabelDescription;
-    private Bitmap mBitmapLabel;
+    private String mDiary, mLabelDescription, mFaceDescription, mDate;
+    private Bitmap mBitmapLabel, mBitmapFace;
 
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            layout.setVisibility(View.VISIBLE);
+            textViewDate.setText(mDate);
             textView.setText(mDiary);
-            imageViewLabel.setImageBitmap(mBitmapLabel);
-            textViewLabel.setText(mLabelDescription);
+
+            if (mBitmapLabel != null) {
+                imageViewLabel.setImageBitmap(mBitmapLabel);
+                textViewLabel.setText(mLabelDescription);
+            } else
+                layoutLabel.setVisibility(View.GONE);
+
+            if (mBitmapFace != null) {
+                imageViewFace.setImageBitmap(mBitmapFace);
+                textViewFace.setText(mFaceDescription);
+            } else
+                layoutFace.setVisibility(View.GONE);
         }
     };
 
@@ -39,28 +53,45 @@ public class DiaryFragment extends Fragment {
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle savedInstanceState) {
         View view = layoutInflater.inflate(R.layout.fragment_diary, null);
         Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "NanumPen.ttf");
+
+        layout = (LinearLayout) view.findViewById(R.id.diary_layout);
+        layoutLabel = (LinearLayout) view.findViewById(R.id.diary_layout_label);
+        layoutFace = (LinearLayout) view.findViewById(R.id.diary_layout_face);
         imageViewLabel = (ImageView) view.findViewById(R.id.diary_imageView_labelPhoto);
+        imageViewFace = (ImageView) view.findViewById(R.id.diary_imageView_facePhoto);
         textView = (TextView) view.findViewById(R.id.diary_textView_diary);
+        textViewDate = (TextView) view.findViewById(R.id.diary_textView_date);
         textViewLabel = (TextView) view.findViewById(R.id.diary_textView_labelDescription);
+        textViewFace = (TextView) view.findViewById(R.id.diary_textView_faceDescription);
+        textViewLabelTitle = (TextView) view.findViewById(R.id.diary_textView_labelTitle);
+        textViewFaceTitle = (TextView) view.findViewById(R.id.diary_textView_faceTitle);
+
         textView.setTypeface(typeface);
+        textViewDate.setTypeface(typeface);
         textViewLabel.setTypeface(typeface);
+        textViewFace.setTypeface(typeface);
+        textViewLabelTitle.setTypeface(typeface);
+        textViewFaceTitle.setTypeface(typeface);
         return view;
     }
 
     public void finishLoadData(DiaryActivity diaryActivity) {
+        DiaryUtil util = new DiaryUtil(getContext());
+        mDate = util.dateToDiary();
+
         mDiary = "";
-        mDiary += DiaryUtil.weatherToDiary(getContext(), diaryActivity.getWeathers(), true);
-        mDiary += DiaryUtil.placeToDiary(getContext(), diaryActivity.getPlaces());
-        mDiary += DiaryUtil.planToDiary(getContext(), diaryActivity.getPlans(), true);
-        mDiary += DiaryUtil.planToDiary(getContext(), diaryActivity.getNextPlans(), false);
-        mDiary += DiaryUtil.usageToDiary(getContext(), diaryActivity.getUsages());
-        mDiary += DiaryUtil.newsToDiary(getContext(), diaryActivity.getNews().subList(0, 3));
-        mDiary += DiaryUtil.weatherToDiary(getContext(), diaryActivity.getForecasts(), false);
+        mDiary += util.weatherToDiary(diaryActivity.getWeathers(), true);
+        mDiary += util.placeToDiary(diaryActivity.getPlaces());
+        mDiary += util.planToDiary(diaryActivity.getPlans(), true);
+        mDiary += util.planToDiary(diaryActivity.getNextPlans(), false);
+        mDiary += util.usageToDiary(diaryActivity.getUsages());
+        mDiary += util.newsToDiary(diaryActivity.getNews().subList(0, 3));
+        mDiary += util.weatherToDiary(diaryActivity.getForecasts(), false);
 
         LabelPhoto labelPhoto = diaryActivity.getLabelPhoto();
         if (labelPhoto != null) {
             mBitmapLabel = labelPhoto.getBitmap();
-            mLabelDescription = labelPhoto.getDescription();
+            mLabelDescription = util.labelToDiary(labelPhoto);
         } else
             mLabelDescription = "";
 

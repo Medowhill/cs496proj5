@@ -2,30 +2,42 @@ package com.group1.team.autodiary.utils;
 
 import android.content.Context;
 
+import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.AppUsage;
 import com.group1.team.autodiary.objects.CallLog;
+import com.group1.team.autodiary.objects.LabelPhoto;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Locale;
 
 public class DiaryUtil {
 
-    public static String weatherToDiary(Context context, List<Weather> weathers, boolean today) {
+    private Context mContext;
+
+    public DiaryUtil(Context context) {
+        this.mContext = context;
+    }
+
+    public String dateToDiary() {
+        return new SimpleDateFormat(mContext.getString(R.string.diary_text_date_format), Locale.KOREA).format(new Date(System.currentTimeMillis()));
+    }
+
+    public String weatherToDiary(List<Weather> weathers, boolean today) {
         if (weathers == null || weathers.isEmpty())
             return "";
 
         String[] tempStrings, descriptionStrings, humidityStrings, attitudeStrings;
-        tempStrings = context.getResources().getStringArray(R.array.diary_weather_temp);
-        descriptionStrings = context.getResources().getStringArray(today ? R.array.diary_weather_description : R.array.diary_forecast_description);
-        humidityStrings = context.getResources().getStringArray(R.array.diary_weather_humidity);
-        attitudeStrings = context.getResources().getStringArray(today ? R.array.diary_weather_attitude : R.array.diary_forecast_attitude);
+        tempStrings = mContext.getResources().getStringArray(R.array.diary_weather_temp);
+        descriptionStrings = mContext.getResources().getStringArray(today ? R.array.diary_weather_description : R.array.diary_forecast_description);
+        humidityStrings = mContext.getResources().getStringArray(R.array.diary_weather_humidity);
+        attitudeStrings = mContext.getResources().getStringArray(today ? R.array.diary_weather_attitude : R.array.diary_forecast_attitude);
 
         double temp = 0;
         int humidity = 0, cloud = 0;
@@ -84,24 +96,23 @@ public class DiaryUtil {
             attitudeIndex = 1;
 
         return today
-                ? String.format(context.getString(R.string.diary_weather_format), tempStrings[tempIndex], descriptionStrings[descriptionIndex], humidityStrings[humidityIndex], attitudeStrings[attitudeIndex])
-                : String.format(context.getString(R.string.diary_forecast_format), tempStrings[tempIndex], descriptionStrings[descriptionIndex], attitudeStrings[attitudeIndex]);
+                ? String.format(mContext.getString(R.string.diary_weather_format), tempStrings[tempIndex], descriptionStrings[descriptionIndex], humidityStrings[humidityIndex], attitudeStrings[attitudeIndex])
+                : String.format(mContext.getString(R.string.diary_forecast_format), tempStrings[tempIndex], descriptionStrings[descriptionIndex], attitudeStrings[attitudeIndex]);
     }
 
-    public static String placeToDiary(Context context, List<Place> places) {
+    public String placeToDiary(List<Place> places) {
         if (places == null || places.isEmpty())
             return "";
 
+        SimpleDateFormat format = new SimpleDateFormat(mContext.getString(R.string.diary_place_time_format), Locale.KOREA);
         List<String> extra = new ArrayList<>();
         String major = "", minor = "";
         long time = 0;
         for (Place place : places) {
             long newTime = place.getTime();
             if (newTime - time > 3600 * 1000) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(new Date(newTime));
-                major += String.format(context.getString(R.string.diary_place_major_format),
-                        context.getString(calendar.get(Calendar.HOUR_OF_DAY) < 12 ? R.string.am : R.string.pm), calendar.get(Calendar.HOUR), place.getName());
+                major += String.format(mContext.getString(R.string.diary_place_major_format),
+                        format.format(new Date(newTime)), place.getName());
                 time = newTime;
             } else
                 extra.add(place.getName());
@@ -110,7 +121,7 @@ public class DiaryUtil {
             for (String str : extra)
                 minor += str + ", ";
             minor = minor.substring(0, minor.length() - 2);
-            minor = String.format(context.getString(R.string.diary_place_extra_format), minor);
+            minor = String.format(mContext.getString(R.string.diary_place_extra_format), minor);
         }
         major = major.substring(0, major.length() - 2);
 
@@ -120,11 +131,11 @@ public class DiaryUtil {
         else
             attitudeIndex = 1;
 
-        return String.format(context.getString(R.string.diary_place_format), major, minor,
-                context.getResources().getStringArray(R.array.diary_place_attitude)[attitudeIndex]);
+        return String.format(mContext.getString(R.string.diary_place_format), major, minor,
+                mContext.getResources().getStringArray(R.array.diary_place_attitude)[attitudeIndex]);
     }
 
-    public static String planToDiary(Context context, List<String> plans, boolean today) {
+    public String planToDiary(List<String> plans, boolean today) {
         if (plans == null || plans.isEmpty())
             return "";
 
@@ -132,7 +143,7 @@ public class DiaryUtil {
         for (String plan : plans)
             str += plan + ", ";
         str = str.substring(0, str.length() - 2);
-        str += context.getString(hasLastSound(str) ? R.string.eul : R.string.leul);
+        str += mContext.getString(hasLastSound(str) ? R.string.eul_kor : R.string.leul_kor);
 
         int attitudeIndex;
         if (plans.size() <= 3)
@@ -142,12 +153,12 @@ public class DiaryUtil {
         else
             attitudeIndex = 2;
 
-        String[] attitudes = context.getResources().getStringArray(today ? R.array.diary_plan_attitude : R.array.diary_plan_tomorrow_attitude);
-        return String.format(context.getResources().getString(today ? R.string.diary_plan_format : R.string.diary_plan_tomorrow_format),
+        String[] attitudes = mContext.getResources().getStringArray(today ? R.array.diary_plan_attitude : R.array.diary_plan_tomorrow_attitude);
+        return String.format(mContext.getResources().getString(today ? R.string.diary_plan_format : R.string.diary_plan_tomorrow_format),
                 str, attitudes[attitudeIndex]);
     }
 
-    public static String newsToDiary(Context context, List<String> news) {
+    public String newsToDiary(List<String> news) {
         if (news == null || news.isEmpty())
             return "";
 
@@ -166,12 +177,12 @@ public class DiaryUtil {
             str += news_ + ", ";
         }
         str = str.substring(0, str.length() - 2);
-        str += context.getString(hasLastSound(str) ? R.string.gwa : R.string.wa);
+        str += mContext.getString(hasLastSound(str) ? R.string.gwa_kor : R.string.wa_kor);
 
-        return String.format(context.getString(R.string.diary_news_format), str);
+        return String.format(mContext.getString(R.string.diary_news_format), str);
     }
 
-    public static String phoneToDiary(Context context, List<CallLog> calls) {
+    public String phoneToDiary(List<CallLog> calls) {
         if (calls == null || calls.isEmpty())
             return "";
 
@@ -183,7 +194,7 @@ public class DiaryUtil {
         return str;
     }
 
-    public static String usageToDiary(Context context, List<AppUsage> usages) {
+    public String usageToDiary(List<AppUsage> usages) {
         if (usages == null || usages.isEmpty())
             return "";
 
@@ -196,12 +207,20 @@ public class DiaryUtil {
         for (int i = 0; i < Math.min(3, usages.size()); i++) {
             AppUsage usage = usages.get(i);
             long time = usage.getTime();
+            time /= 60000;
+            if (time < 1)
+                break;
 
-            str += usage.getName() + context.getString(hasLastSound(usage.getName()) ? R.string.eul : R.string.leul) + " " +
-                    String.format(context.getString(R.string.diary_usage_time_format),
-                            TimeUnit.MILLISECONDS.toHours(time), TimeUnit.MILLISECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(time))) + ", ";
+            int hour = (int) time / 60;
+            int min = (int) (time - hour * 60);
+
+            str += usage.getName() + mContext.getString(hasLastSound(usage.getName()) ? R.string.eul_kor : R.string.leul_kor) + " " +
+                    ((hour > 0) ? (hour + mContext.getString(R.string.hour_kor)) : "") +
+                    ((hour > 0 && min > 0) ? " " : "") +
+                    ((min > 0) ? (min + mContext.getString(R.string.min_kor)) : "") + ", ";
         }
-        str = str.substring(0, str.length() - 2);
+        if (str.length() > 2)
+            str = str.substring(0, str.length() - 2);
 
         int attitudeIndex;
         if (total < 2L * 3600 * 1000)
@@ -211,10 +230,33 @@ public class DiaryUtil {
         else
             attitudeIndex = 2;
 
-        return String.format(context.getString(R.string.diary_usage_format), str,
-                String.format(context.getString(R.string.diary_usage_time_format),
-                        TimeUnit.MILLISECONDS.toHours(total), TimeUnit.MILLISECONDS.toMinutes(total) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(total))),
-                context.getResources().getStringArray(R.array.diary_usage_attitude)[attitudeIndex]);
+        total /= 60000;
+        int hour = (int) total / 60;
+        int min = (int) (total - hour * 60);
+        return String.format(mContext.getString(R.string.diary_usage_format), str,
+                ((hour > 0) ? (hour + mContext.getString(R.string.hour_kor)) : "") +
+                        ((hour > 0 && min > 0) ? " " : "") +
+                        ((min > 0) ? (min + mContext.getString(R.string.min_kor)) : ""),
+                mContext.getResources().getStringArray(R.array.diary_usage_attitude)[attitudeIndex]);
+    }
+
+    public String labelToDiary(LabelPhoto photo) {
+        String str = new SimpleDateFormat(mContext.getString(R.string.diary_label_time_format), Locale.KOREA).format(new Date(photo.getTime())) + "\n";
+        List<EntityAnnotation> annotations = photo.getAnnotations();
+        if (annotations != null) {
+            for (EntityAnnotation annotation : annotations) {
+                if (annotation != null) {
+                    if (annotation.getScore() < 0.5)
+                        break;
+                    str += annotation.getDescription() + ", ";
+                }
+            }
+        }
+
+        if (str.charAt(str.length() - 1) == ' ')
+            str = str.substring(0, str.length() - 2);
+
+        return str;
     }
 
     private static boolean hasLastSound(String str) {

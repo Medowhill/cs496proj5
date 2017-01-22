@@ -1,32 +1,33 @@
+
 package com.group1.team.autodiary.objects;
 
 import android.graphics.Bitmap;
 
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class LabelPhoto {
 
     private Bitmap mBitmap;
-    private String mDescription;
+    private List<EntityAnnotation> mAnnotations;
+    long mTime;
 
     public LabelPhoto(Bitmap bitmap, List<EntityAnnotation> annotations, long time) {
         mBitmap = bitmap;
-        mDescription = new SimpleDateFormat("HH:mm").format(new Date(time)) + "\n";
-        if (annotations != null) {
-            for (EntityAnnotation annotation : annotations)
-                mDescription += ", " + annotation.getDescription();
-        }
+        mAnnotations = annotations;
+        mTime = time;
     }
 
     public Bitmap getBitmap() {
         return mBitmap;
     }
 
-    public String getDescription() {
-        return mDescription;
+    public List<EntityAnnotation> getAnnotations() {
+        return mAnnotations;
+    }
+
+    public long getTime() {
+        return mTime;
     }
 }
