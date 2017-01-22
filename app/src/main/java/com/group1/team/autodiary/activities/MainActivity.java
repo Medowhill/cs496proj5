@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -153,5 +155,16 @@ public class MainActivity extends AppCompatActivity {
             if (serviceClass.getName().equals(service.service.getClassName()))
                 return true;
         return false;
+    }
+
+    public void sendNotification(View view) {
+        NotificationManager nManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationCompat.Builder ncomp = new NotificationCompat.Builder(this);
+        ncomp.setContentTitle("My Notification");
+        ncomp.setContentText("Notification Listener Service Example");
+        ncomp.setTicker("Notification Listener Service Example");
+        ncomp.setSmallIcon(R.drawable.ic_launcher);
+        ncomp.setAutoCancel(true);
+        nManager.notify((int)System.currentTimeMillis(),ncomp.build());
     }
 }

@@ -3,7 +3,10 @@ package com.group1.team.autodiary.services;
 import android.Manifest;
 import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Binder;
@@ -46,6 +49,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     private List<Place> places = new ArrayList<>();
     private List<Weather> weathers = new ArrayList<>();
     private List<Music> musics = new ArrayList<>();
+    private List<String> notifications = new ArrayList<>();
     private Location mLocation;
     private long mStart;
     private boolean run = false;
@@ -92,6 +96,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         mSelfieManager.start();
 
         collectPlayingMusic();
+        collectNotificationData();
 
         return START_STICKY;
     }
@@ -180,6 +185,13 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         new MusicManager(getApplicationContext()).getPlayingMusicInfo(music -> {
             musics.add(music);
             Log.i(TAG, "music");
+        });
+    }
+
+    private void collectNotificationData() {
+        new NotificationParser().collectNotificationData(getApplicationContext() ,notification -> {
+            notifications.add(notification.getStringExtra("notification"));
+            Log.i(TAG, "notification");
         });
     }
 

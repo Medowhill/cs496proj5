@@ -154,21 +154,6 @@ public class DiaryActivity extends AppCompatActivity {
         statisticsFragment.finishLoadData(this);
     }
 
-    public void showNotificationData() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(NotificationParser.GET_NOTIFICATION);
-
-        BroadcastReceiver mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                // TODO : do something
-                Log.d("DiaryActivity", "Get Notification!");
-            }
-        };
-
-        registerReceiver(mReceiver, intentFilter);
-    }
-
     public List<Place> getPlaces() {
         return mPlaces;
     }
