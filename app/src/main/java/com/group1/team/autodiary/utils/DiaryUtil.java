@@ -10,6 +10,7 @@ import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.managers.CallLogManager;
 import com.group1.team.autodiary.managers.MusicManager;
 import com.group1.team.autodiary.objects.AppUsage;
+import com.group1.team.autodiary.objects.FacePhoto;
 import com.group1.team.autodiary.objects.LabelPhoto;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
@@ -305,6 +306,10 @@ public class DiaryUtil {
             str = str.substring(0, str.length() - 2);
 
         return str;
+    }
+
+    public String faceToDiary(long time) {
+        return new SimpleDateFormat(mContext.getString(R.string.diary_label_time_format), Locale.KOREA).format(new Date(time));
     }
 
     public String musicToDiary(List<Music> musics) {

@@ -80,6 +80,12 @@
                     android:layout_marginBottom="@dimen/diary_image_margin"
                     android:layout_marginTop="@dimen/diary_image_margin"
                     android:scaleType="fitCenter" />
+
+                <TextView
+                    android:id="@+id/diary_textView_faceDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/diary_textSize" />
             </LinearLayout>
 
         </LinearLayout>

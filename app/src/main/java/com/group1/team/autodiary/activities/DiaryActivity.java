@@ -160,7 +160,7 @@ public class DiaryActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.activity_main_start, R.anim.activity_diary_destroy);
+        overridePendingTransition(R.anim.from_left, R.anim.to_right);
     }
 
     private void sendDataToFragment() {

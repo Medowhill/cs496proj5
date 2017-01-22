@@ -18,16 +18,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.services.DiaryService;
-
-import java.sql.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +45,12 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 19)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
+        FrameLayout layout = (FrameLayout) findViewById(R.id.main_layout);
+        layout.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), HistoryActivity.class));
+            overridePendingTransition(R.anim.from_left, R.anim.to_right);
+        });
+
         Typeface typeface = Typeface.createFromAsset(getAssets(), "NanumMyeongjo.ttf");
         button = (Button) findViewById(R.id.main_button);
         button.setTypeface(typeface);
@@ -61,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
-                                    overridePendingTransition(R.anim.activity_diary_create, R.anim.activity_main_stop);
+                                    overridePendingTransition(R.anim.from_right, R.anim.to_left);
                                     mRun = false;
                                 }
                             });

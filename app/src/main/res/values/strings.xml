@@ -22,7 +22,7 @@
     <string name="main_dialog_positive">네</string>
     <string name="main_dialog_negative">아니요</string>
 
-    <string name="diary_wakeup_date_format">오늘은 a h시 m분에 일어났다.\u0020</string>
+    <string name="diary_no">작성된 일기 없음</string>
     <string name="diary_text_date_format">yyyy년 M월 d일 E요일</string>
     <string name="diary_text_label">오늘의 사진</string>
     <string name="diary_text_face">오늘 최고의 순간</string>
@@ -33,6 +33,8 @@
         <item>조심스럽게 일기장 꺼내는 중</item>
         <item>구겨지지 않게 일기장 펴는 중</item>
     </string-array>
+
+    <string name="diary_wakeup_date_format">오늘은 a h시 m분에 일어났다.\u0020</string>
 
     <string name="diary_weather_format" formatted="false">날씨는 %s고 %s다. 그리고 %s다. 그래서 %s다.\u0020</string>
     <string-array name="diary_weather_temp">
