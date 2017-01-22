@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -25,6 +26,7 @@ import com.group1.team.autodiary.managers.PhotoManager;
 import com.group1.team.autodiary.managers.PlanManager;
 import com.group1.team.autodiary.managers.WeatherManager;
 import com.group1.team.autodiary.objects.AppUsage;
+import com.group1.team.autodiary.objects.FacePhoto;
 import com.group1.team.autodiary.objects.LabelPhoto;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
@@ -55,6 +57,7 @@ public class DiaryActivity extends AppCompatActivity {
     private List<String> mNews, mPlans, mNextPlans;
     private List<Music> mMusics;
     private LabelPhoto mLabelPhoto;
+    private Bitmap mFaceBitmap;
 
     final private Object mLockObject = new Object();
     private int mFinishedWork = 0;
@@ -73,6 +76,7 @@ public class DiaryActivity extends AppCompatActivity {
             mPlaces.addAll(diaryService.getPlaces());
             mWeathers.addAll(diaryService.getWeathers());
             mMusics.addAll(diaryService.getMusics());
+            FacePhoto facePhoto = diaryService.getPhoto();
             diaryService.clearData();
             unbindService(connection);
             stopService(new Intent(getApplicationContext(), DiaryService.class));
@@ -107,6 +111,10 @@ public class DiaryActivity extends AppCompatActivity {
                 mPlans = planManager.getPlan(start, current);
                 mNextPlans = planManager.getPlan(current, current + DAY_LENGTH);
                 mUsages = new AppUsageStatsManager(getApplicationContext(), start, current).getAllItems();
+                if (facePhoto != null) {
+                    mFaceBitmap = facePhoto.getBitmap(getApplicationContext());
+                    facePhoto.deleteFile(getApplicationContext());
+                }
 
                 mCallLogManager = new CallLogManager(getApplicationContext(), start, current);
 
@@ -166,7 +174,9 @@ public class DiaryActivity extends AppCompatActivity {
         return mForecasts;
     }
 
-    public List<Music> getMusics() { return mMusics; }
+    public List<Music> getMusics() {
+        return mMusics;
+    }
 
     public List<String> getNews() {
         return mNews;
@@ -190,5 +200,9 @@ public class DiaryActivity extends AppCompatActivity {
 
     public LabelPhoto getLabelPhoto() {
         return mLabelPhoto;
+    }
+
+    public Bitmap getFaceBitmap() {
+        return mFaceBitmap;
     }
 }

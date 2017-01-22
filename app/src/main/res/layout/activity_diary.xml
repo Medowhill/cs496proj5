@@ -3,7 +3,7 @@
     android:id="@+id/diary_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/smallpaper"
+    android:background="@drawable/diarybg"
     android:fitsSystemWindows="true">
 
     <android.support.v4.view.ViewPager

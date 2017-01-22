@@ -207,10 +207,12 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         return weathers;
     }
 
-    public List<Music> getMusics() { return musics; }
+    public List<Music> getMusics() {
+        return musics;
+    }
 
-    public FacePhoto[] getPhotos() {
-        return mSelfieManager.getPhotos();
+    public FacePhoto getPhoto() {
+        return mSelfieManager.getPhoto();
     }
 
     public long getStart() {

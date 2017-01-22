@@ -1,6 +1,7 @@
 package com.group1.team.autodiary.utils;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.group1.team.autodiary.R;
@@ -174,6 +175,12 @@ public class DiaryUtil {
                     break;
                 news_ = news_.substring(0, index) + news_.substring(finIndex + 1);
             }
+            while ((index = news_.indexOf('[')) != -1) {
+                int finIndex = news_.indexOf(']', index);
+                if (finIndex == -1)
+                    break;
+                news_ = news_.substring(0, index) + news_.substring(finIndex + 1);
+            }
             str += news_ + ", ";
         }
         str = str.substring(0, str.length() - 2);
@@ -246,6 +253,7 @@ public class DiaryUtil {
         if (annotations != null) {
             for (EntityAnnotation annotation : annotations) {
                 if (annotation != null) {
+                    Log.i("cs496test", annotation.getScore() + "");
                     if (annotation.getScore() < 0.5)
                         break;
                     str += annotation.getDescription() + ", ";

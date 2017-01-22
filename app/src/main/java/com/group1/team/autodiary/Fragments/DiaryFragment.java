@@ -22,10 +22,10 @@ import com.group1.team.autodiary.utils.DiaryUtil;
 public class DiaryFragment extends Fragment {
 
     private LinearLayout layout, layoutLabel, layoutFace;
-    private TextView textView, textViewDate, textViewLabel, textViewFace, textViewLabelTitle, textViewFaceTitle;
+    private TextView textView, textViewDate, textViewLabel;
     private ImageView imageViewLabel, imageViewFace;
 
-    private String mDiary, mLabelDescription, mFaceDescription, mDate;
+    private String mDiary, mLabelDescription, mDate;
     private Bitmap mBitmapLabel, mBitmapFace;
 
     private Handler handler = new Handler() {
@@ -41,10 +41,9 @@ public class DiaryFragment extends Fragment {
             } else
                 layoutLabel.setVisibility(View.GONE);
 
-            if (mBitmapFace != null) {
+            if (mBitmapFace != null)
                 imageViewFace.setImageBitmap(mBitmapFace);
-                textViewFace.setText(mFaceDescription);
-            } else
+            else
                 layoutFace.setVisibility(View.GONE);
         }
     };
@@ -62,14 +61,12 @@ public class DiaryFragment extends Fragment {
         textView = (TextView) view.findViewById(R.id.diary_textView_diary);
         textViewDate = (TextView) view.findViewById(R.id.diary_textView_date);
         textViewLabel = (TextView) view.findViewById(R.id.diary_textView_labelDescription);
-        textViewFace = (TextView) view.findViewById(R.id.diary_textView_faceDescription);
-        textViewLabelTitle = (TextView) view.findViewById(R.id.diary_textView_labelTitle);
-        textViewFaceTitle = (TextView) view.findViewById(R.id.diary_textView_faceTitle);
+        TextView textViewLabelTitle = (TextView) view.findViewById(R.id.diary_textView_labelTitle);
+        TextView textViewFaceTitle = (TextView) view.findViewById(R.id.diary_textView_faceTitle);
 
         textView.setTypeface(typeface);
         textViewDate.setTypeface(typeface);
         textViewLabel.setTypeface(typeface);
-        textViewFace.setTypeface(typeface);
         textViewLabelTitle.setTypeface(typeface);
         textViewFaceTitle.setTypeface(typeface);
         return view;
@@ -94,6 +91,8 @@ public class DiaryFragment extends Fragment {
             mLabelDescription = util.labelToDiary(labelPhoto);
         } else
             mLabelDescription = "";
+
+        mBitmapFace = diaryActivity.getFaceBitmap();
 
         handler.sendEmptyMessage(0);
     }

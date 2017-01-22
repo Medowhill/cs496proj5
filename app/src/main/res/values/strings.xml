@@ -15,8 +15,8 @@
     <string name="newsSelection">.commonlist_tx_headline</string>
     <string name="visionKey">AIzaSyAGgtdf7mYt4jJgFFmaWqpstmCUIjGKPJI</string>
 
-    <string name="main_button_start">나 일어났어!</string>
-    <string name="main_button_finish">나 잘거야!</string>
+    <string name="main_button_start">하루 시작</string>
+    <string name="main_button_finish">하루 끝</string>
 
     <string name="diary_text_date_format">yyyy년 M월 d일 E요일</string>
     <string name="diary_text_label">오늘의 사진</string>
