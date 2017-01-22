@@ -81,9 +81,12 @@ public class DiaryFragment extends Fragment {
         mDiary += util.placeToDiary(diaryActivity.getPlaces());
         mDiary += util.planToDiary(diaryActivity.getPlans(), true);
         mDiary += util.planToDiary(diaryActivity.getNextPlans(), false);
+        mDiary += util.phoneToDiary(diaryActivity.getCallLogManager());
         mDiary += util.usageToDiary(diaryActivity.getUsages());
         mDiary += util.newsToDiary(diaryActivity.getNews().subList(0, 3));
+        mDiary += util.musicToDiary(diaryActivity.getMusics());
         mDiary += util.weatherToDiary(diaryActivity.getForecasts(), false);
+        mDiary += util.endToDiary();
 
         LabelPhoto labelPhoto = diaryActivity.getLabelPhoto();
         if (labelPhoto != null) {

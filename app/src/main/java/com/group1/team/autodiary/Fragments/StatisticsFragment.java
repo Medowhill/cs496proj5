@@ -80,7 +80,7 @@ public class StatisticsFragment extends Fragment {
                     }
 
                     // played music part
-                    String[] mostFrequentlyPlayedMusicInfo = new MusicManager(getContext()).getMostFrequentlyPlayedMusic(mMusics);
+                    String[] mostFrequentlyPlayedMusicInfo = MusicManager.getMostFrequentlyPlayedMusic(mMusics);
                     if (mostFrequentlyPlayedMusicInfo != null)
                         ((TextView) view.findViewById(R.id.most_frequently_played_music)).setText(
                                 mostFrequentlyPlayedMusicInfo[0] + " - " + mostFrequentlyPlayedMusicInfo[1] + " (" + mostFrequentlyPlayedMusicInfo[2] + getString(R.string.times) + ")");
@@ -99,8 +99,12 @@ public class StatisticsFragment extends Fragment {
         handler.sendEmptyMessage(0);
     }
 
+    // Now Place instance has getDuration method
+    // Also, places list is sorted due to its duration
+    // However, the redundancy is not removed
+    // You need to modify this method because of above changes
     public HashMap.Entry<String, Long>[] getLongestVisitedPlaces() {
-        if (mPlaces.size() == 0) return new HashMap.Entry[] { null, null, null };
+        if (mPlaces.size() == 0) return new HashMap.Entry[]{null, null, null};
 
         HashMap<String, Long> hashMap = new HashMap<>();
 
@@ -118,7 +122,7 @@ public class StatisticsFragment extends Fragment {
         else
             hashMap.put(key, System.currentTimeMillis() - mPlaces.get(mPlaces.size() - 1).getTime());
 
-        HashMap.Entry<String, Long>[] longestVisitedPlaces = new HashMap.Entry[] { null, null, null };
+        HashMap.Entry<String, Long>[] longestVisitedPlaces = new HashMap.Entry[]{null, null, null};
 
         for (int i = 0; i < 3; i++) {
             for (HashMap.Entry<String, Long> entry : hashMap.entrySet()) {

@@ -54,7 +54,7 @@ public class DiaryActivity extends AppCompatActivity {
     private List<Music> mMusics;
     private LabelPhoto mLabelPhoto;
     private Bitmap mFaceBitmap;
-    private long mStart, mFinish;
+    private long mStart, mFinish, mBestTime;
 
     final private Object mLockObject = new Object();
     private int mFinishedWork = 0;
@@ -111,6 +111,7 @@ public class DiaryActivity extends AppCompatActivity {
                 if (facePhoto != null) {
                     mFaceBitmap = facePhoto.getBitmap(getApplicationContext());
                     facePhoto.deleteFile(getApplicationContext());
+                    mBestTime = facePhoto.getTime();
                 }
 
                 mCallLogManager = new CallLogManager(getApplicationContext(), mStart, mFinish);
@@ -225,5 +226,9 @@ public class DiaryActivity extends AppCompatActivity {
 
     public long getFinish() {
         return mFinish;
+    }
+
+    public long getBestTime() {
+        return mBestTime;
     }
 }

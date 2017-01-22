@@ -43,6 +43,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     private final IBinder mBinder = new DiaryBinder();
     private GoogleApiClient mGoogleApiClient;
 
+    private MusicManager mMusicManager;
     private SelfieManager mSelfieManager;
     private List<Place> places = new ArrayList<>();
     private List<Weather> weathers = new ArrayList<>();
@@ -93,6 +94,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         mSelfieManager = new SelfieManager(getApplicationContext());
         mSelfieManager.start();
 
+        mMusicManager = new MusicManager(getApplicationContext());
         collectPlayingMusic();
         collectNotificationData();
 
@@ -105,6 +107,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
         run = false;
         mSelfieManager.stop();
+        mMusicManager.stopMusicReceiver();
         mGoogleApiClient.disconnect();
         stopForeground(true);
     }
@@ -171,7 +174,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     }
 
     private void collectPlayingMusic() {
-        new MusicManager(getApplicationContext()).getPlayingMusicInfo(music -> {
+        mMusicManager.startMusicReceiver(music -> {
             musics.add(music);
             Log.i(TAG, "music");
         });

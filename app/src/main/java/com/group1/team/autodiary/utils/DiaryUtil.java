@@ -1,12 +1,15 @@
 package com.group1.team.autodiary.utils;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.util.Log;
 
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.group1.team.autodiary.R;
+import com.group1.team.autodiary.managers.CallLogManager;
+import com.group1.team.autodiary.managers.MusicManager;
 import com.group1.team.autodiary.objects.AppUsage;
-import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.LabelPhoto;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
@@ -22,8 +25,16 @@ public class DiaryUtil {
 
     private Context mContext;
 
+    private String wa, gwa, leul, eul, yi;
+
     public DiaryUtil(Context context) {
         this.mContext = context;
+
+        wa = context.getString(R.string.wa_kor);
+        gwa = context.getString(R.string.gwa_kor);
+        leul = context.getString(R.string.leul_kor);
+        eul = context.getString(R.string.eul_kor);
+        yi = context.getString(R.string.yi_kor);
     }
 
     public String dateToDiary(long time) {
@@ -216,21 +227,30 @@ public class DiaryUtil {
             str += news_ + ", ";
         }
         str = str.substring(0, str.length() - 2);
-        str += mContext.getString(hasLastSound(str) ? R.string.gwa_kor : R.string.wa_kor);
+        str += hasLastSound(str) ? gwa : wa;
 
         return String.format(mContext.getString(R.string.diary_news_format), str);
     }
 
-    public String phoneToDiary(List<CallLog> calls) {
-        if (calls == null || calls.isEmpty())
-            return "";
+    public String phoneToDiary(CallLogManager manager) {
+        String str1 = "", str2 = "";
 
-        for (CallLog call : calls) {
-
+        String[] callInfo = manager.getLongestCallPerson();
+        if (callInfo != null && !callInfo[1].equals("0")) {
+            String name = callInfo[0] == null ? mContext.getString(R.string.diary_phone_unknown) : callInfo[0];
+            int duration = Integer.parseInt(callInfo[1]);
+            duration /= 60;
+            if (duration == 0)
+                duration = 1;
+            str1 = String.format(mContext.getString(R.string.diary_phone_format),
+                    name + (hasLastSound(name) ? gwa : wa), duration, pick(R.string.diary_phone_attitude));
         }
 
-        String str = "";
-        return str;
+        String missedInfo = manager.getMissedCall();
+        if (missedInfo != null)
+            str2 = String.format(mContext.getString(R.string.diary_phone_missed_format), missedInfo, pick(R.string.diary_phone_missed_attitude));
+
+        return str1 + str2;
     }
 
     public String usageToDiary(List<AppUsage> usages) {
@@ -249,7 +269,7 @@ public class DiaryUtil {
             if (time < 60000)
                 break;
 
-            str += usage.getName() + mContext.getString(hasLastSound(usage.getName()) ? R.string.eul_kor : R.string.leul_kor) + " " +
+            str += usage.getName() + (hasLastSound(usage.getName()) ? eul : leul) + " " +
                     millisecondToString(time) + ", ";
         }
         if (str.length() > 2)
@@ -290,11 +310,19 @@ public class DiaryUtil {
     public String musicToDiary(List<Music> musics) {
         if (musics == null || musics.isEmpty())
             return "";
-
-        String str = "";
-        return str;
+        String[] music = MusicManager.getMostFrequentlyPlayedMusic(musics);
+        String singer = music[0], track = music[1];
+        if (singer == null)
+            singer = mContext.getString(R.string.diary_music_unknown_singer);
+        if (track == null)
+            track = mContext.getString(R.string.diary_music_unknown_music);
+        return String.format(mContext.getString(R.string.diary_music_format),
+                singer, track + (hasLastSound(track) ? yi : ""), pick(R.string.diary_music_attitude));
     }
 
+    public String endToDiary() {
+        return pick(R.string.diary_end);
+    }
 
     private static boolean hasLastSound(String str) {
         return ((str.charAt(str.length() - 1) - 0xAC00) % 28) != 0;
@@ -307,6 +335,16 @@ public class DiaryUtil {
         return ((hour > 0) ? (hour + mContext.getString(R.string.hour_kor)) : "") +
                 ((hour > 0 && min > 0) ? " " : "") +
                 ((min > 0) ? (min + mContext.getString(R.string.min_kor)) : "");
+    }
+
+    private String pick(@StringRes int id) {
+        return pick(mContext.getString(id));
+    }
+
+    private String pick(@NonNull String str) {
+        String[] arr = str.split("=");
+        int rand = (int) (Math.random() * arr.length);
+        return arr[rand];
     }
 
 }

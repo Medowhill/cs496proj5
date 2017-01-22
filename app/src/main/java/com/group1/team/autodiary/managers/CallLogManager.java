@@ -5,12 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.support.v4.content.ContextCompat;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
-import com.group1.team.autodiary.R;
+
 import com.group1.team.autodiary.objects.CallLog;
 
 import java.util.ArrayList;
@@ -18,22 +13,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by q on 2017-01-21.
- */
-
 public class CallLogManager {
 
-    private LayoutInflater inflater = null;
     private List<CallLog> callLogs = null;
-    private Context mContext = null;
 
     public CallLogManager(Context c, long dayStartTime, long dayEndTime) {
-        this.mContext = c;
-
-        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG)
+        if (ContextCompat.checkSelfPermission(c, Manifest.permission.READ_CALL_LOG)
                 == PackageManager.PERMISSION_GRANTED) {
-            Cursor callLogCursor = mContext.getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI,
+            Cursor callLogCursor = c.getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI,
                     null,
                     android.provider.CallLog.Calls.DATE + " >= " + dayStartTime + " and "
                             + android.provider.CallLog.Calls.DATE + " <= " + dayEndTime,
@@ -73,6 +60,7 @@ public class CallLogManager {
                     callLogs.add(new CallLog(phoneNumber, dir, callDayTime, callDuration, callName));
                 } while (callLogCursor.moveToNext());
             }
+            callLogCursor.close();
         }
     }
 
@@ -106,13 +94,13 @@ public class CallLogManager {
                 longestCallPerson = temp.getName();
         }
 
-        return new String[] {
+        return new String[]{
                 longestCallPerson,
                 String.valueOf(hashMap.get(longestCallPerson))
         };
     }
 
-    public Long getTotalCallTime() {
+    public long getTotalCallTime() {
         long totalCallTime = 0;
         for (int i = 0; i < callLogs.size(); i++)
             totalCallTime += Long.valueOf(callLogs.get(i).getCallDuration());
@@ -120,5 +108,22 @@ public class CallLogManager {
         return totalCallTime;
     }
 
-    public List<CallLog> getAllItems() { return callLogs; }
+    public String getMissedCall() {
+        List<String> calls = new ArrayList<>();
+        for (CallLog log : callLogs)
+            if (log.getDir().equals("MISSED") && log.getName() != null)
+                calls.add(log.getName());
+        for (String call : calls) {
+            boolean success = false;
+            for (CallLog log : callLogs) {
+                if (!log.getDir().equals("MISSED") && log.getName() != null && log.getName().equals(call)) {
+                    success = true;
+                    break;
+                }
+            }
+            if (!success)
+                return call;
+        }
+        return null;
+    }
 }

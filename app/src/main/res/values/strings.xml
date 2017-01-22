@@ -8,6 +8,7 @@
     <string name="gwa_kor">과</string>
     <string name="hour_kor">시간</string>
     <string name="min_kor">분</string>
+    <string name="yi_kor">이</string>
 
     <string name="weatherKey">cabb2d8628fa6a58aef8738269211fab</string>
     <string name="weatherUrl">http://api.openweathermap.org/data/2.5/</string>
@@ -104,6 +105,19 @@
         <item>생각보다 많이</item>
         <item>너무 많이</item>
     </string-array>
+
+    <string name="diary_music_format" formatted="false">오늘 %s의 %s라는 곡을 들었다. %s\u0020</string>
+    <string name="diary_music_unknown_singer">모르는 가수</string>
+    <string name="diary_music_unknown_music">제목을 모르는 노래</string>
+    <string name="diary_music_attitude">정말 대단한 곡이었다.=듣는 내내 즐거웠다.=중독성 있는 노래였다.=훌륭한 노래였다.</string>
+
+    <string name="diary_phone_format" formatted="false">%s %d분 동안 통화했다. %s\u0020</string>
+    <string name="diary_phone_missed_format" formatted="false">%s에게서 전화가 왔는데 받지 못했다. %s\u0020</string>
+    <string name="diary_phone_unknown">모르는 사람</string>
+    <string name="diary_phone_attitude">매우 의미있는 대화였다.=즐거운 대화였다.=쓸데없는 대화만 나누었다.=진중한 대화를 나누었다.</string>
+    <string name="diary_phone_missed_attitude">무슨 전화였을까 궁금하다.=못 받아서 다행인 것 같다.=쓸데없는 전화였을 것이 분명하다.=받았어야 하는 전화인데 큰일이다.</string>
+
+    <string name="diary_end">정말 보람찬 하루였다.=내일이 기대된다.=내일을 위해 오늘은 이만 자야겠다.=오늘은 깊은 잠을 잘 것 같다.</string>
 
     <string name="diary_label_time_format">a h시 m분</string>
 
