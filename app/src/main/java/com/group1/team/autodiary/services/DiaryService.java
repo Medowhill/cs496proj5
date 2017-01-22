@@ -158,8 +158,11 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
             PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
             result.setResultCallback((likelyPlaces) -> {
                 if (likelyPlaces.getCount() > 0) {
-                    places.add(new Place(System.currentTimeMillis(), likelyPlaces.get(0).getPlace().getName().toString()));
-                    Log.i(TAG, "place");
+                    String place = likelyPlaces.get(0).getPlace().getName().toString();
+                    if (places.isEmpty() || !places.get(places.size() - 1).getName().equals(place)) {
+                        places.add(new Place(System.currentTimeMillis(), place));
+                        Log.i(TAG, "place");
+                    }
                 }
                 likelyPlaces.release();
             });
