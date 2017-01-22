@@ -100,6 +100,8 @@ public class StatisticsFragment extends Fragment {
     }
 
     public HashMap.Entry<String, Long>[] getLongestVisitedPlaces() {
+        if (mPlaces.size() == 0) return new HashMap.Entry[] { null, null, null };
+
         HashMap<String, Long> hashMap = new HashMap<>();
 
         for (int i = 0; i < mPlaces.size() - 1; i++) {
@@ -109,6 +111,12 @@ public class StatisticsFragment extends Fragment {
             else
                 hashMap.put(key, mPlaces.get(i + 1).getTime() - mPlaces.get(i).getTime());
         }
+
+        String key = mPlaces.get(mPlaces.size() - 1).getName();
+        if (hashMap.containsKey(key))
+            hashMap.put(key, hashMap.get(key) + System.currentTimeMillis() - mPlaces.get(mPlaces.size() - 1).getTime());
+        else
+            hashMap.put(key, System.currentTimeMillis() - mPlaces.get(mPlaces.size() - 1).getTime());
 
         HashMap.Entry<String, Long>[] longestVisitedPlaces = new HashMap.Entry[] { null, null, null };
 
