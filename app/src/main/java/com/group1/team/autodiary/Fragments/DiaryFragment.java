@@ -74,9 +74,9 @@ public class DiaryFragment extends Fragment {
 
     public void finishLoadData(DiaryActivity diaryActivity) {
         DiaryUtil util = new DiaryUtil(getContext());
-        mDate = util.dateToDiary();
+        mDate = util.dateToDiary(diaryActivity.getFinish());
 
-        mDiary = "";
+        mDiary = util.wakeUpToDiary(diaryActivity.getStart());
         mDiary += util.weatherToDiary(diaryActivity.getWeathers(), true);
         mDiary += util.placeToDiary(diaryActivity.getPlaces());
         mDiary += util.planToDiary(diaryActivity.getPlans(), true);

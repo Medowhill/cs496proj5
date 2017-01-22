@@ -1,10 +1,7 @@
 package com.group1.team.autodiary.activities;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -33,7 +30,6 @@ import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.ViewPagerAdapter;
 import com.group1.team.autodiary.objects.Weather;
 import com.group1.team.autodiary.services.DiaryService;
-import com.group1.team.autodiary.services.NotificationParser;
 import com.group1.team.autodiary.views.LoadingView;
 
 import java.util.ArrayList;
@@ -58,6 +54,7 @@ public class DiaryActivity extends AppCompatActivity {
     private List<Music> mMusics;
     private LabelPhoto mLabelPhoto;
     private Bitmap mFaceBitmap;
+    private long mStart, mFinish;
 
     final private Object mLockObject = new Object();
     private int mFinishedWork = 0;
@@ -71,8 +68,8 @@ public class DiaryActivity extends AppCompatActivity {
             mMusics = new ArrayList<>();
 
             DiaryService diaryService = ((DiaryService.DiaryBinder) service).getService();
-            long current = System.currentTimeMillis();
-            long start = diaryService.getStart();
+            mFinish = System.currentTimeMillis();
+            mStart = diaryService.getStart();
             mPlaces.addAll(diaryService.getPlaces());
             mWeathers.addAll(diaryService.getWeathers());
             mMusics.addAll(diaryService.getMusics());
@@ -89,7 +86,7 @@ public class DiaryActivity extends AppCompatActivity {
                         sendDataToFragment();
                 }
             });
-            new PhotoManager(getApplicationContext()).getPhoto(start, current, (bitmap, date, annotations) -> {
+            new PhotoManager(getApplicationContext()).getPhoto(mStart, mFinish, (bitmap, date, annotations) -> {
                 mLabelPhoto = new LabelPhoto(bitmap, annotations, date);
                 Log.i(TAG, "load photo");
                 synchronized (mLockObject) {
@@ -97,7 +94,7 @@ public class DiaryActivity extends AppCompatActivity {
                         sendDataToFragment();
                 }
             });
-            new WeatherManager(getApplicationContext()).getForecast(diaryService.getLocation(), current, current + DAY_LENGTH, forecasts -> {
+            new WeatherManager(getApplicationContext()).getForecast(diaryService.getLocation(), mFinish, mFinish + DAY_LENGTH, forecasts -> {
                 mForecasts = forecasts;
                 Log.i(TAG, "load forecast");
                 synchronized (mLockObject) {
@@ -108,15 +105,15 @@ public class DiaryActivity extends AppCompatActivity {
 
             new Thread(() -> {
                 PlanManager planManager = new PlanManager(getApplicationContext());
-                mPlans = planManager.getPlan(start, current);
-                mNextPlans = planManager.getPlan(current, current + DAY_LENGTH);
-                mUsages = new AppUsageStatsManager(getApplicationContext(), start, current).getAllItems();
+                mPlans = planManager.getPlan(mStart, mFinish);
+                mNextPlans = planManager.getPlan(mFinish, mFinish + DAY_LENGTH);
+                mUsages = new AppUsageStatsManager(getApplicationContext()).getAppUsages(mStart, mFinish);
                 if (facePhoto != null) {
                     mFaceBitmap = facePhoto.getBitmap(getApplicationContext());
                     facePhoto.deleteFile(getApplicationContext());
                 }
 
-                mCallLogManager = new CallLogManager(getApplicationContext(), start, current);
+                mCallLogManager = new CallLogManager(getApplicationContext(), mStart, mFinish);
 
                 Log.i(TAG, "load extra");
                 synchronized (mLockObject) {
@@ -153,13 +150,29 @@ public class DiaryActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mFinishedWork == WORK_NUM)
+            super.onBackPressed();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_main_start, R.anim.activity_diary_destroy);
+    }
+
     private void sendDataToFragment() {
-        Log.i(TAG, "send to fragment");
-        loadingView.stop();
-        DiaryFragment diaryFragment = (DiaryFragment) viewPagerAdapter.instantiateItem(viewPager, 0);
-        StatisticsFragment statisticsFragment = (StatisticsFragment) viewPagerAdapter.instantiateItem(viewPager, 1);
-        diaryFragment.finishLoadData(this);
-        statisticsFragment.finishLoadData(this);
+        if (loadingView != null)
+            loadingView.stop();
+        if (viewPagerAdapter != null) {
+            DiaryFragment diaryFragment = (DiaryFragment) viewPagerAdapter.instantiateItem(viewPager, 0);
+            StatisticsFragment statisticsFragment = (StatisticsFragment) viewPagerAdapter.instantiateItem(viewPager, 1);
+            if (diaryFragment != null)
+                diaryFragment.finishLoadData(this);
+            if (statisticsFragment != null)
+                statisticsFragment.finishLoadData(this);
+        }
     }
 
     public List<Place> getPlaces() {
@@ -204,5 +217,13 @@ public class DiaryActivity extends AppCompatActivity {
 
     public Bitmap getFaceBitmap() {
         return mFaceBitmap;
+    }
+
+    public long getStart() {
+        return mStart;
+    }
+
+    public long getFinish() {
+        return mFinish;
     }
 }

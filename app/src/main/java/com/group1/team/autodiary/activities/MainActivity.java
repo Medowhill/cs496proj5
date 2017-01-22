@@ -1,11 +1,11 @@
 package com.group1.team.autodiary.activities;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
@@ -21,6 +22,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.services.DiaryService;
@@ -34,9 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PACKAGE_USAGE_STATS = 1;
     private static final int REQUEST_NOTIFICATION_LISTENER_ENABLE = 2;
 
-    public static long dayStartTime;
-    public static long dayEndTime;
-
     private Button button;
 
     private boolean mRun = false; // whether service is running (user is awake)
@@ -48,24 +47,34 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 19)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "NanumMyeongjo.ttf");
         button = (Button) findViewById(R.id.main_button);
-        button.setTypeface(Typeface.createFromAsset(getAssets(), "NanumMyeongjo.ttf"));
+        button.setTypeface(typeface);
         button.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (mRun) { // when user goes to bed
-                            dayEndTime = System.currentTimeMillis();
-                            Log.d("check", "dayEndTime : " + new Date(dayEndTime).toString());
-                            startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
-                            mRun = false;
-                            button.setText(R.string.main_button_start);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setMessage(R.string.main_dialog_message);
+                            builder.setPositiveButton(R.string.main_dialog_positive, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
+                                    overridePendingTransition(R.anim.activity_diary_create, R.anim.activity_main_stop);
+                                    mRun = false;
+                                }
+                            });
+                            builder.setNegativeButton(R.string.main_dialog_negative, null);
+
+                            AlertDialog dialog = builder.show();
+                            ((TextView) dialog.findViewById(android.R.id.message)).setTypeface(typeface);
+                            ((Button) dialog.findViewById(android.R.id.button1)).setTypeface(typeface);
+                            ((Button) dialog.findViewById(android.R.id.button2)).setTypeface(typeface);
                         } else { // when user wakes up
                             startService(new Intent(getApplicationContext(), DiaryService.class));
                             mRun = true;
                             button.setText(R.string.main_button_finish);
-                            dayStartTime = System.currentTimeMillis();
-                            Log.d("check", "dayStartTime : " + new Date(dayStartTime).toString());
                         }
                     }
                 });
@@ -106,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         mRun = isServiceRunning(DiaryService.class);
         if (mRun) button.setText(R.string.main_button_finish);
+        else button.setText(R.string.main_button_start);
     }
 
     @Override
@@ -137,9 +147,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @TargetApi(19)
     private boolean hasPackageUsageStatsPermission() {
-        if (Build.VERSION.SDK_INT < 19) return false;
+        if (Build.VERSION.SDK_INT < 19) return true;
 
         AppOpsManager appOps = (AppOpsManager)
                 getSystemService(Context.APP_OPS_SERVICE);
@@ -168,8 +177,7 @@ public class MainActivity extends AppCompatActivity {
         ncomp.setContentTitle("My Notification");
         ncomp.setContentText("Notification Listener Service Example");
         ncomp.setTicker("Notification Listener Service Example");
-        ncomp.setSmallIcon(R.drawable.ic_launcher);
         ncomp.setAutoCancel(true);
-        nManager.notify((int)System.currentTimeMillis(),ncomp.build());
+        nManager.notify((int) System.currentTimeMillis(), ncomp.build());
     }
 }

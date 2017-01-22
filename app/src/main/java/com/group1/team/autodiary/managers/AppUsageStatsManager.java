@@ -17,27 +17,44 @@ import java.util.List;
 
 public class AppUsageStatsManager {
 
-    private List<AppUsage> appUsageStats;
+    private Context mContext;
 
-    public AppUsageStatsManager(Context context, long dayStartTime, long dayEndTime) {
-        appUsageStats = new ArrayList<>();
+    public AppUsageStatsManager(Context context) {
+        mContext = context;
+    }
+
+    private String getName(String packageName) {
+        PackageManager packageManager = mContext.getPackageManager();
+        String name = null;
+        try {
+            name = packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return name;
+    }
+
+    public List<AppUsage> getAppUsages(long dayStartTime, long dayEndTime) {
+        List<AppUsage> appUsageStats = new ArrayList<>();
+
         if (Build.VERSION.SDK_INT > 21) {
-            final UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+            final UsageStatsManager usageStatsManager = (UsageStatsManager) mContext.getSystemService(Context.USAGE_STATS_SERVICE);
             List<UsageStats> statsList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, dayStartTime, dayEndTime);
 
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
-            ResolveInfo defaultLauncher = context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+            ResolveInfo defaultLauncher = mContext.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
             String launcherPackageName = defaultLauncher.activityInfo.packageName;
 
-            for (UsageStats stats : statsList)
-                if (!stats.getPackageName().equals(launcherPackageName))
-                    appUsageStats.add(new AppUsage(context, stats.getPackageName(), stats.getTotalTimeInForeground()));
+            for (UsageStats stats : statsList) {
+                if (!stats.getPackageName().equals(launcherPackageName)) {
+                    String name = getName(stats.getPackageName());
+                    if (name != null)
+                        appUsageStats.add(new AppUsage(name, stats.getTotalTimeInForeground()));
+                }
+            }
             Collections.sort(appUsageStats);
         }
-    }
-
-    public List<AppUsage> getAllItems() {
         return appUsageStats;
     }
 }

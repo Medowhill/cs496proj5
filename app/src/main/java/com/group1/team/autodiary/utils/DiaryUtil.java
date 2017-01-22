@@ -8,11 +8,11 @@ import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.AppUsage;
 import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.LabelPhoto;
+import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -26,8 +26,12 @@ public class DiaryUtil {
         this.mContext = context;
     }
 
-    public String dateToDiary() {
-        return new SimpleDateFormat(mContext.getString(R.string.diary_text_date_format), Locale.KOREA).format(new Date(System.currentTimeMillis()));
+    public String dateToDiary(long time) {
+        return new SimpleDateFormat(mContext.getString(R.string.diary_text_date_format), Locale.KOREA).format(new Date(time));
+    }
+
+    public String wakeUpToDiary(long time) {
+        return new SimpleDateFormat(mContext.getString(R.string.diary_wakeup_date_format), Locale.KOREA).format(new Date(time));
     }
 
     public String weatherToDiary(List<Weather> weathers, boolean today) {
@@ -102,29 +106,55 @@ public class DiaryUtil {
     }
 
     public String placeToDiary(List<Place> places) {
-        if (places == null || places.isEmpty())
+        if (places == null)
             return "";
 
         SimpleDateFormat format = new SimpleDateFormat(mContext.getString(R.string.diary_place_time_format), Locale.KOREA);
-        List<String> extra = new ArrayList<>();
         String major = "", minor = "";
-        long time = 0;
-        for (Place place : places) {
-            long newTime = place.getTime();
-            if (newTime - time > 3600 * 1000) {
-                major += String.format(mContext.getString(R.string.diary_place_major_format),
-                        format.format(new Date(newTime)), place.getName());
-                time = newTime;
-            } else
-                extra.add(place.getName());
+
+        int i;
+        for (i = 0; i < places.size(); i++) {
+            Place place = places.get(i);
+            long duration = place.getDuration();
+            if (duration < 60 * 60 * 1000)
+                break;
+
+            String name = place.getName();
+            boolean redundancy = false;
+            for (int j = 0; j < i; j++) {
+                if (places.get(j).getName().equals(name)) {
+                    redundancy = true;
+                    break;
+                }
+            }
+            if (redundancy)
+                continue;
+
+            major += String.format(mContext.getString(R.string.diary_place_major_detail_format),
+                    format.format(new Date(place.getTime())), name);
         }
-        if (!extra.isEmpty()) {
-            for (String str : extra)
-                minor += str + ", ";
+
+        int count = 0;
+        for (; i < places.size() && count < 3; i++) {
+            Place place = places.get(i);
+            boolean redundancy = false;
+            for (int j = 0; j < i; j++) {
+                if (places.get(j).getName().equals(place.getName())) {
+                    redundancy = true;
+                    break;
+                }
+            }
+            if (redundancy)
+                continue;
+
+            minor += place.getName() + ", ";
+            count++;
+        }
+
+        if (major.length() > 2)
+            major = major.substring(0, major.length() - 2);
+        if (minor.length() > 2)
             minor = minor.substring(0, minor.length() - 2);
-            minor = String.format(mContext.getString(R.string.diary_place_extra_format), minor);
-        }
-        major = major.substring(0, major.length() - 2);
 
         int attitudeIndex;
         if (places.size() <= 5)
@@ -132,8 +162,10 @@ public class DiaryUtil {
         else
             attitudeIndex = 1;
 
-        return String.format(mContext.getString(R.string.diary_place_format), major, minor,
-                mContext.getResources().getStringArray(R.array.diary_place_attitude)[attitudeIndex]);
+        return ((major.length() > 0) ? String.format(mContext.getString(R.string.diary_place_format), major) : "") +
+                ((major.length() > 0 && minor.length() > 0) ? mContext.getString(R.string.diary_place_bothExist) : "") +
+                ((minor.length() > 0) ? String.format(mContext.getString(R.string.diary_place_format), minor) : "") +
+                String.format(mContext.getString(R.string.diary_place_attitude_format), mContext.getResources().getStringArray(R.array.diary_place_attitude)[attitudeIndex]);
     }
 
     public String planToDiary(List<String> plans, boolean today) {
@@ -214,17 +246,11 @@ public class DiaryUtil {
         for (int i = 0; i < Math.min(3, usages.size()); i++) {
             AppUsage usage = usages.get(i);
             long time = usage.getTime();
-            time /= 60000;
-            if (time < 1)
+            if (time < 60000)
                 break;
 
-            int hour = (int) time / 60;
-            int min = (int) (time - hour * 60);
-
             str += usage.getName() + mContext.getString(hasLastSound(usage.getName()) ? R.string.eul_kor : R.string.leul_kor) + " " +
-                    ((hour > 0) ? (hour + mContext.getString(R.string.hour_kor)) : "") +
-                    ((hour > 0 && min > 0) ? " " : "") +
-                    ((min > 0) ? (min + mContext.getString(R.string.min_kor)) : "") + ", ";
+                    millisecondToString(time) + ", ";
         }
         if (str.length() > 2)
             str = str.substring(0, str.length() - 2);
@@ -237,13 +263,7 @@ public class DiaryUtil {
         else
             attitudeIndex = 2;
 
-        total /= 60000;
-        int hour = (int) total / 60;
-        int min = (int) (total - hour * 60);
-        return String.format(mContext.getString(R.string.diary_usage_format), str,
-                ((hour > 0) ? (hour + mContext.getString(R.string.hour_kor)) : "") +
-                        ((hour > 0 && min > 0) ? " " : "") +
-                        ((min > 0) ? (min + mContext.getString(R.string.min_kor)) : ""),
+        return String.format(mContext.getString(R.string.diary_usage_format), str, millisecondToString(total),
                 mContext.getResources().getStringArray(R.array.diary_usage_attitude)[attitudeIndex]);
     }
 
@@ -267,8 +287,26 @@ public class DiaryUtil {
         return str;
     }
 
+    public String musicToDiary(List<Music> musics) {
+        if (musics == null || musics.isEmpty())
+            return "";
+
+        String str = "";
+        return str;
+    }
+
+
     private static boolean hasLastSound(String str) {
         return ((str.charAt(str.length() - 1) - 0xAC00) % 28) != 0;
+    }
+
+    private String millisecondToString(long time) {
+        time /= 60000;
+        int hour = (int) time / 60;
+        int min = (int) (time - hour * 60);
+        return ((hour > 0) ? (hour + mContext.getString(R.string.hour_kor)) : "") +
+                ((hour > 0 && min > 0) ? " " : "") +
+                ((min > 0) ? (min + mContext.getString(R.string.min_kor)) : "");
     }
 
 }

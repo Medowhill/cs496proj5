@@ -17,7 +17,11 @@
 
     <string name="main_button_start">하루 시작</string>
     <string name="main_button_finish">하루 끝</string>
+    <string name="main_dialog_message">정말 오늘 하루가 끝났나요?</string>
+    <string name="main_dialog_positive">네</string>
+    <string name="main_dialog_negative">아니요</string>
 
+    <string name="diary_wakeup_date_format">오늘은 a h시 m분에 일어났다.\u0020</string>
     <string name="diary_text_date_format">yyyy년 M월 d일 E요일</string>
     <string name="diary_text_label">오늘의 사진</string>
     <string name="diary_text_face">오늘 최고의 순간</string>
@@ -29,7 +33,7 @@
         <item>구겨지지 않게 일기장 펴는 중</item>
     </string-array>
 
-    <string name="diary_weather_format" formatted="false">오늘은 %s고 %s다. 그리고 %s다. 그래서 %s다.\u0020</string>
+    <string name="diary_weather_format" formatted="false">날씨는 %s고 %s다. 그리고 %s다. 그래서 %s다.\u0020</string>
     <string-array name="diary_weather_temp">
         <item>춥</item>
         <item>쌀쌀하</item>
@@ -69,10 +73,11 @@
         <item>기대된</item>
     </string-array>
 
-    <string name="diary_place_format" formatted="false">%s에 갔다. %s내일은 %s고 싶다.\u0020</string>
+    <string name="diary_place_format" formatted="false">%s에 갔다.\u0020</string>
+    <string name="diary_place_attitude_format" formatted="false">내일은 %s고 싶다.\u0020</string>
     <string name="diary_place_time_format">a h시</string>
-    <string name="diary_place_major_format" formatted="false">%s에는 %s,\u0020</string>
-    <string name="diary_place_extra_format" formatted="false">그 외에도 %s에 갔다.\u0020</string>
+    <string name="diary_place_major_detail_format" formatted="false">%s에는 %s,\u0020</string>
+    <string name="diary_place_bothExist">그 외에도\u0020</string>
     <string-array name="diary_place_attitude">
         <item>더 다양한 장소에 방문해보</item>
         <item>방에서 좀 쉬</item>
