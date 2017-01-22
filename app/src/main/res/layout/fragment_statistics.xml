@@ -252,7 +252,7 @@
                                     android:gravity="center"
                                     android:text="무슨 장소" />
                                 <com.group1.team.autodiary.views.GamsungFontTextView
-                                    android:id="@+id/fisrt_longest_visited_place_time"
+                                    android:id="@+id/first_longest_visited_place_time"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:gravity="center"

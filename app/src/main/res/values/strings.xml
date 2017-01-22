@@ -99,4 +99,6 @@
     <string name="sec">초</string>
     <string name="min">분</string>
     <string name="hour">시간</string>
+    <string name="times">회</string>
+    <string name="visited">방문</string>
 </resources>

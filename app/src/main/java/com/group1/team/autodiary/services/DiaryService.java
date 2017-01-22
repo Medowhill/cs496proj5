@@ -23,9 +23,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.group1.team.autodiary.R;
+import com.group1.team.autodiary.managers.MusicManager;
 import com.group1.team.autodiary.managers.SelfieManager;
 import com.group1.team.autodiary.managers.WeatherManager;
 import com.group1.team.autodiary.objects.FacePhoto;
+import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
 
@@ -43,6 +45,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     private SelfieManager mSelfieManager;
     private List<Place> places = new ArrayList<>();
     private List<Weather> weathers = new ArrayList<>();
+    private List<Music> musics = new ArrayList<>();
     private Location mLocation;
     private long mStart;
     private boolean run = false;
@@ -87,6 +90,10 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
         mSelfieManager = new SelfieManager(getApplicationContext());
         mSelfieManager.start();
+
+        collectPlayingMusic();
+
+        getPlace();
 
         return START_STICKY;
     }
@@ -168,6 +175,13 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         });
     }
 
+    private void collectPlayingMusic() {
+        new MusicManager(getApplicationContext()).getPlayingMusicInfo(music -> {
+            musics.add(music);
+            Log.i(TAG, "music");
+        });
+    }
+
     public Location getLocation() {
         return mLocation;
     }
@@ -179,6 +193,8 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     public List<Weather> getWeathers() {
         return weathers;
     }
+
+    public List<Music> getMusics() { return musics; }
 
     public FacePhoto[] getPhotos() {
         return mSelfieManager.getPhotos();

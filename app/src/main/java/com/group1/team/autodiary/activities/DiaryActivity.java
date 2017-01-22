@@ -53,6 +53,7 @@ public class DiaryActivity extends AppCompatActivity {
     private List<Weather> mWeathers, mForecasts;
     private List<AppUsage> mUsages;
     private List<String> mNews, mPlans, mNextPlans;
+    private List<Music> mMusics;
     private LabelPhoto mLabelPhoto;
 
     final private Object mLockObject = new Object();
@@ -64,12 +65,14 @@ public class DiaryActivity extends AppCompatActivity {
             mFinishedWork = 0;
             mPlaces = new ArrayList<>();
             mWeathers = new ArrayList<>();
+            mMusics = new ArrayList<>();
 
             DiaryService diaryService = ((DiaryService.DiaryBinder) service).getService();
             long current = System.currentTimeMillis();
             long start = diaryService.getStart();
             mPlaces.addAll(diaryService.getPlaces());
             mWeathers.addAll(diaryService.getWeathers());
+            mMusics.addAll(diaryService.getMusics());
             diaryService.clearData();
             unbindService(connection);
             stopService(new Intent(getApplicationContext(), DiaryService.class));
@@ -151,44 +154,6 @@ public class DiaryActivity extends AppCompatActivity {
         statisticsFragment.finishLoadData(this);
     }
 
-    private void getPlayingMusicInfo() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("com.android.music.metachanged");
-        intentFilter.addAction("com.android.music.playstatechanged");
-        intentFilter.addAction("com.android.music.playbackcomplete");
-        intentFilter.addAction("com.android.music.queuechanged");
-
-        BroadcastReceiver mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                //String cmd = intent.getStringExtra("command");
-                String artist = intent.getStringExtra("artist");
-                String album = intent.getStringExtra("album");
-                String track = intent.getStringExtra("track");
-
-                Music playingMusicInfo = new Music(action, artist, album, track);
-                /*
-                if (action.equals("com.android.music.metachanged"))
-                    ((TextView) findViewById(R.id.playing_music_info))
-                            .setText("Meta Changed; Music Info\nArtist : " + artist +"\nalbum : " + album + "\ntrack : " + track);
-                else if (action.equals("com.android.music.playstatechanged"))
-                    ((TextView) findViewById(R.id.playing_music_info))
-                            .setText("Play State Changed; Music Info\nArtist : " + artist +"\nalbum : " + album + "\ntrack : " + track);
-                else if (action.equals("com.android.music.playbackcomplete"))
-                    ((TextView) findViewById(R.id.playing_music_info))
-                            .setText("Play Back Complete; Music Info\nArtist : " + artist +"\nalbum : " + album + "\ntrack : " + track);
-                else if (action.equals("com.android.music.queuechanged"))
-                    ((TextView) findViewById(R.id.playing_music_info))
-                            .setText("Queue Changed; Music Info\nArtist : " + artist +"\nalbum : " + album + "\ntrack : " + track);
-                */
-                // TODO : do something when get playing music info
-            }
-        };
-
-        registerReceiver(mReceiver, intentFilter);
-    }
-
     public void showNotificationData() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(NotificationParser.GET_NOTIFICATION);
@@ -215,6 +180,8 @@ public class DiaryActivity extends AppCompatActivity {
     public List<Weather> getForecasts() {
         return mForecasts;
     }
+
+    public List<Music> getMusics() { return mMusics; }
 
     public List<String> getNews() {
         return mNews;
