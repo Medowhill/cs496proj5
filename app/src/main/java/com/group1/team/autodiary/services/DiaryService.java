@@ -93,8 +93,6 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
         collectPlayingMusic();
 
-        getPlace();
-
         return START_STICKY;
     }
 
