@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button button;
 
+    private TextToSpeech speech;
     private boolean mRun = false; // whether service is running (user is awake)
 
     @Override
@@ -46,9 +48,12 @@ public class MainActivity extends AppCompatActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
         FrameLayout layout = (FrameLayout) findViewById(R.id.main_layout);
-        layout.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), HistoryActivity.class));
-            overridePendingTransition(R.anim.from_left, R.anim.to_right);
+        layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), HistoryActivity.class));
+                overridePendingTransition(R.anim.from_left, R.anim.to_right);
+            }
         });
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "NanumMyeongjo.ttf");
@@ -76,6 +81,12 @@ public class MainActivity extends AppCompatActivity {
                             ((Button) dialog.findViewById(android.R.id.button1)).setTypeface(typeface);
                             ((Button) dialog.findViewById(android.R.id.button2)).setTypeface(typeface);
                         } else { // when user wakes up
+                            speech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                @Override
+                                public void onInit(int status) {
+                                    speech.speak(getString(R.string.main_speech), TextToSpeech.QUEUE_FLUSH, null);
+                                }
+                            });
                             startService(new Intent(getApplicationContext(), DiaryService.class));
                             mRun = true;
                             button.setText(R.string.main_button_finish);
@@ -120,6 +131,16 @@ public class MainActivity extends AppCompatActivity {
         mRun = isServiceRunning(DiaryService.class);
         if (mRun) button.setText(R.string.main_button_finish);
         else button.setText(R.string.main_button_start);
+    }
+
+    @Override
+    protected void onStop() {
+        if (speech != null) {
+            speech.stop();
+            speech.shutdown();
+        }
+
+        super.onStop();
     }
 
     @Override

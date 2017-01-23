@@ -17,7 +17,7 @@ import com.group1.team.autodiary.R;
 
 public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final int LOADING_PERIOD = 100, WAITING_PERIOD = 500;
+    private static final int LOADING_PERIOD = 50, WAITING_PERIOD = 600;
 
     private TextThread mThread;
     private String[] mLoadings;
@@ -68,6 +68,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void stop() {
+        mStart = false;
         if (mThread != null) {
             mThread.mClear = true;
             try {
@@ -90,7 +91,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
         if (mThread == null)
             return false;
 
-        return !mThread.mClear;
+        return mStart && !mThread.mClear;
     }
 
     private class TextThread extends Thread {
@@ -119,7 +120,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
                         }
                         if (canvas != null)
                             canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-                        if (mClear)
+                        if (mClear && mLoadingLength == 0)
                             break;
                         if (canvas != null)
                             canvas.drawText(mLoadings[mLoadingIndex].substring(0, mLoadingLength), (mWidth - getTextWidth(mLoadings[mLoadingIndex])) / 2, mHeight / 2, paint);
