@@ -17,12 +17,13 @@ import com.group1.team.autodiary.R;
 
 public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final int LOADING_PERIOD = 100, WAITING_PERIOD = 500;
+    private static final int LOADING_PERIOD = 50, WAITING_PERIOD = 600;
 
     private TextThread mThread;
     private String[] mLoadings;
     private int mLoadingIndex, mLoadingLength;
     private int mWidth, mHeight;
+    private boolean mStart;
     private Paint paint;
 
     public LoadingView(Context context, AttributeSet attrs) {
@@ -41,8 +42,10 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         mThread = new TextThread(getHolder());
-        mThread.mRun = true;
-        mThread.start();
+        if (mStart) {
+            mThread.mRun = true;
+            mThread.start();
+        }
     }
 
     @Override
@@ -56,7 +59,16 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
         stop();
     }
 
+    public void start() {
+        mStart = true;
+        if (mThread != null) {
+            mThread.mRun = true;
+            mThread.start();
+        }
+    }
+
     public void stop() {
+        mStart = false;
         if (mThread != null) {
             mThread.mClear = true;
             try {
@@ -64,6 +76,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            mThread = null;
         }
     }
 
@@ -78,7 +91,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
         if (mThread == null)
             return false;
 
-        return !mThread.mClear;
+        return mStart && !mThread.mClear;
     }
 
     private class TextThread extends Thread {
@@ -107,7 +120,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
                         }
                         if (canvas != null)
                             canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-                        if (mClear)
+                        if (mClear && mLoadingLength == 0)
                             break;
                         if (canvas != null)
                             canvas.drawText(mLoadings[mLoadingIndex].substring(0, mLoadingLength), (mWidth - getTextWidth(mLoadings[mLoadingIndex])) / 2, mHeight / 2, paint);

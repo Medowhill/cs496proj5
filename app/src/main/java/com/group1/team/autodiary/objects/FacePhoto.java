@@ -58,10 +58,7 @@ public class FacePhoto {
 
     public void deleteFile(Context context) {
         File file = new File(context.getFilesDir().getPath() + File.separator + getFileName());
-        Log.i("cs496test", file.getPath());
-        if (file.exists()) {
-            boolean b = file.delete();
-            Log.i("cs496test", b + "");
-        }
+        if (file.exists())
+           file.delete();
     }
 }

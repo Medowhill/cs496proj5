@@ -7,6 +7,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.speech.tts.TextToSpeech;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,7 @@ import com.group1.team.autodiary.utils.DiaryUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,7 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 
-public class DiaryFragment extends Fragment {
+public class DiaryFragment extends Fragment implements TextToSpeech.OnInitListener {
 
     private LinearLayout layout, layoutLabel, layoutFace;
     private TextView textView, textViewDate, textViewLabel, textViewFace;
@@ -39,6 +42,7 @@ public class DiaryFragment extends Fragment {
     private String mDiary, mLabelDescription, mFaceDescription, mDate, mFileName;
     private Bitmap mBitmapLabel, mBitmapFace;
 
+    private TextToSpeech speech;
     private long mLoadTime;
     private boolean mLoad = false;
 
@@ -49,13 +53,26 @@ public class DiaryFragment extends Fragment {
             textViewDate.setText(mDate);
             textView.setText(mDiary);
 
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (speech != null) {
+                        speech.stop();
+                        speech.shutdown();
+                    }
+                    speech = new TextToSpeech(getContext(), DiaryFragment.this);
+                }
+            });
+
             if (mBitmapLabel != null) {
+                layoutLabel.setVisibility(View.VISIBLE);
                 imageViewLabel.setImageBitmap(mBitmapLabel);
                 textViewLabel.setText(mLabelDescription);
             } else
                 layoutLabel.setVisibility(View.GONE);
 
             if (mBitmapFace != null) {
+                layoutFace.setVisibility(View.VISIBLE);
                 imageViewFace.setImageBitmap(mBitmapFace);
                 textViewFace.setText(mFaceDescription);
             } else
@@ -72,6 +89,26 @@ public class DiaryFragment extends Fragment {
         fragment.mLoad = true;
         fragment.mLoadTime = time;
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onInit(int status) {
+        speech.speak(mDiary, TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (speech != null) {
+            speech.stop();
+            speech.shutdown();
+        }
+
+        super.onDestroy();
     }
 
     @Override
@@ -154,12 +191,20 @@ public class DiaryFragment extends Fragment {
                 stream = getContext().openFileOutput(mFileName + "l", Context.MODE_PRIVATE);
                 mBitmapLabel.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 stream.close();
+            } else {
+                File file = new File(getContext().getFilesDir().getPath() + File.separator + mFileName + "l");
+                if (file.exists())
+                    file.delete();
             }
 
             if (mBitmapFace != null) {
                 stream = getContext().openFileOutput(mFileName + "f", Context.MODE_PRIVATE);
                 mBitmapFace.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 stream.close();
+            } else {
+                File file = new File(getContext().getFilesDir().getPath() + File.separator + mFileName + "f");
+                if (file.exists())
+                    file.delete();
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
@@ -186,19 +231,26 @@ public class DiaryFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
             mDate = getString(R.string.diary_no);
+            mDiary = "";
+            mBitmapLabel = null;
+            mBitmapFace = null;
             handler.sendEmptyMessage(0);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         try {
-            mBitmapLabel = BitmapFactory.decodeStream(getContext().openFileInput(name + "l"));
+            FileInputStream stream = getContext().openFileInput(name + "l");
+            mBitmapLabel = BitmapFactory.decodeStream(stream);
+            stream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         try {
-            mBitmapFace = BitmapFactory.decodeStream(getContext().openFileInput(name + "f"));
+            FileInputStream stream = getContext().openFileInput(name + "f");
+            mBitmapFace = BitmapFactory.decodeStream(stream);
+            stream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
