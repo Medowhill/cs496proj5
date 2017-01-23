@@ -1,8 +1,5 @@
 package com.group1.team.autodiary.objects;
 
-/**
- * Created by q on 2017-01-23.
- */
 
 public class AssetInfo {
     public static final int DEPOSIT = 0;

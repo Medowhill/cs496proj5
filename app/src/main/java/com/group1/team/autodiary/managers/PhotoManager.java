@@ -75,8 +75,6 @@ public class PhotoManager {
                 e.printStackTrace();
                 callback.callback(null, 0, null);
             }
-
         }
     }
-
 }

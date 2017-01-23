@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">일기 대신 써줌</string>
+    <string name="app_name">일기 셔틀</string>
     <string name="tag">cs496test</string>
 
     <string name="eul_kor">을</string>
@@ -23,6 +23,7 @@
     <string name="main_dialog_negative">아니요</string>
     <string name="main_speech">오늘도 즐거운 하루 되세요.</string>
 
+    <string name="diary_share">일기 공유</string>
     <string name="diary_speech">오늘 하루도 수고하셨어요.</string>
     <string name="diary_notification_title">정보 수집 중</string>
     <string name="diary_notification">일기를 쓰기 위해 백그라운드에서 정보를 수집 중입니다.</string>
@@ -43,7 +44,7 @@
 
     <string name="diary_weather_format" formatted="false">날씨는 %s고 %s다. 그리고 %s다. %s %s다.\u0020</string>
     <string-array name="diary_weather_temp">
-        <item>춥=얼어 죽을 것 같=기온이 영하</item>
+        <item>춥=얼어 죽을 것 같=영하의 기온이</item>
         <item>쌀쌀하=약간 춥</item>
         <item>시원하=선선하</item>
         <item>따뜻하=따스하=조금 덥</item>
@@ -142,9 +143,17 @@
     <string name="diary_phone_attitude">매우 의미있는 대화였다.=즐거운 대화였다.=쓸데없는 대화만 나누었다.=진중한 대화를 나누었다.</string>
     <string name="diary_phone_missed_attitude">무슨 전화였을까 궁금하다.=못 받아서 다행인 것 같다.=쓸데없는 전화였을 것이 분명하다.=받았어야 하는 전화인데 큰일이다.</string>
 
+    <string name="diary_asset_zero">오늘은 돈을 하나도 쓰지 않았다. 기분이 좋다. =오늘은 돈을 한 푼도 쓰지 않았다. 잘한 것 같다.\u0020</string>
+    <string name="diary_asset_format" formatted="false">오늘은 %d원을 썼다. %s다.\u0020</string>
+    <string-array name="diary_asset_attitude">
+        <item>돈을 절약한 것 같아서 기분이 좋=오늘 돈을 아낀 덕에 앞으로 여유가 생길 것 같=절약하는 삶을 사는 것 같아서 자랑스럽</item>
+        <item>돈을 너무 많이 쓴 것 같=돈을 낭비해서 기분이 별로=오늘 돈을 너무 많이 써서 내일부터는 아껴야 될 것 같</item>
+    </string-array>
+
     <string name="diary_end">정말 보람찬 하루였다.=내일이 기대된다.=내일을 위해 오늘은 이만 자야겠다.=오늘은 깊은 잠을 잘 것 같다.</string>
 
     <string name="diary_label_time_format">a h시 m분</string>
+
 
     <string name="sec">초</string>
     <string name="min">분</string>
