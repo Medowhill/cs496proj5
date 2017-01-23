@@ -206,8 +206,22 @@ public class DiaryActivity extends AppCompatActivity {
     }
 
     public void showHistory(View view) {
-        if (view.getId() == R.id.call_log) {
-            new StatisticsDialogFragmentManager(DiaryActivity.this).generateStatisticsDialog(StatisticsDialogFragmentManager.CALL_LOG_DIALOG, mCallLogManager.getAllItems());
+        switch(view.getId()) {
+            case R.id.call_log_view :
+                new StatisticsDialogFragmentManager(DiaryActivity.this).generateStatisticsDialog(view.getId(), mCallLogManager.getAllItems());
+                break;
+            case R.id.total_spent_money_view :
+                new StatisticsDialogFragmentManager(DiaryActivity.this).generateStatisticsDialog(view.getId(), mAssetInfos);
+                break;
+            case R.id.most_used_apps_view :
+                new StatisticsDialogFragmentManager(DiaryActivity.this).generateStatisticsDialog(view.getId(), mUsages);
+                break;
+            case R.id.longest_visited_places_view :
+                new StatisticsDialogFragmentManager(DiaryActivity.this).generateStatisticsDialog(view.getId(), mPlaces);
+                break;
+            case R.id.most_frequently_played_music_view :
+                new StatisticsDialogFragmentManager(DiaryActivity.this).generateStatisticsDialog(view.getId(),mMusics);
+                break;
         }
     }
 

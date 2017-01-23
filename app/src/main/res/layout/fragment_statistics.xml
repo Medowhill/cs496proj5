@@ -37,7 +37,7 @@
                 android:showDividers="middle"
                 android:divider="@drawable/empty_tall_divider">
                 <android.support.v7.widget.CardView
-                    android:id="@+id/call_log"
+                    android:id="@+id/call_log_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="#22000000"
@@ -88,10 +88,13 @@
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
                 <android.support.v7.widget.CardView
+                    android:id="@+id/total_spent_money_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="#22000000"
-                    app:cardElevation="0dp">
+                    app:cardElevation="0dp"
+                    android:clickable="true"
+                    android:onClick="showHistory">
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"
@@ -113,10 +116,13 @@
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
                 <android.support.v7.widget.CardView
+                    android:id="@+id/most_used_apps_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="#22000000"
-                    app:cardElevation="0dp">
+                    app:cardElevation="0dp"
+                    android:clickable="true"
+                    android:onClick="showHistory">
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"
@@ -126,7 +132,6 @@
                         android:paddingRight="@dimen/activity_horizontal_margin"
                         android:paddingTop="@dimen/activity_vertical_margin">
                         <com.group1.team.autodiary.views.GamsungFontTextView
-                            android:id="@+id/most_used_apps"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="가장 많이 사용한 앱"
@@ -214,10 +219,13 @@
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
                 <android.support.v7.widget.CardView
+                    android:id="@+id/longest_visited_places_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="#22000000"
-                    app:cardElevation="0dp">
+                    app:cardElevation="0dp"
+                    android:clickable="true"
+                    android:onClick="showHistory">
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"
@@ -227,7 +235,6 @@
                         android:paddingRight="@dimen/activity_horizontal_margin"
                         android:paddingTop="@dimen/activity_vertical_margin">
                         <com.group1.team.autodiary.views.GamsungFontTextView
-                            android:id="@+id/longest_visited_place"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="가장 오래 머무른 장소"
@@ -315,10 +322,13 @@
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
                 <android.support.v7.widget.CardView
+                    android:id="@+id/most_frequently_played_music_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="#22000000"
-                    app:cardElevation="0dp">
+                    app:cardElevation="0dp"
+                    android:clickable="true"
+                    android:onClick="showHistory">
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"

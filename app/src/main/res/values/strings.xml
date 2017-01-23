@@ -154,11 +154,17 @@
 
     <string name="diary_label_time_format">a h시 m분</string>
 
-
     <string name="sec">초</string>
     <string name="min">분</string>
     <string name="hour">시간</string>
     <string name="times">회</string>
     <string name="visited">방문</string>
     <string name="won">원</string>
+
+    <string name="call_logs">오늘의 통화 내역</string>
+    <string name="asset_infos">오늘의 계좌 사용 내역</string>
+    <string name="app_usages">오늘의 앱 사용 내역</string>
+    <string name="visited_places">오늘 방문한 장소들</string>
+    <string name="played_musics">오늘 감상한 음악들</string>
+
 </resources>
