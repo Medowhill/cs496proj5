@@ -20,6 +20,7 @@
                 android:id="@+id/diary_textView_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/diary_image_margin"
                 android:textSize="@dimen/diary_textSize_title" />
 
             <TextView
@@ -84,7 +85,6 @@
                     android:id="@+id/diary_textView_faceDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:lineSpacingExtra="@dimen/diary_lineSpacing"
                     android:textSize="@dimen/diary_textSize" />
             </LinearLayout>
 

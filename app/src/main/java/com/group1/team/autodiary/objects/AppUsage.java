@@ -9,15 +9,9 @@ public class AppUsage implements Comparable<AppUsage> {
     private String mName;
     private long mTime;
 
-    public AppUsage(Context context, String packageName, long time) {
+    public AppUsage(String name, long time) {
         this.mTime = time;
-
-        final PackageManager packageManager = context.getPackageManager();
-        try {
-            mName = packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            mName = "unknown";
-        }
+        this.mName = name;
     }
 
     public String getName() {

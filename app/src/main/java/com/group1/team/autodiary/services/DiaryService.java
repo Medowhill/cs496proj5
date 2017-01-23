@@ -3,10 +3,7 @@ package com.group1.team.autodiary.services;
 import android.Manifest;
 import android.app.Notification;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Binder;
@@ -35,6 +32,7 @@ import com.group1.team.autodiary.objects.Place;
 import com.group1.team.autodiary.objects.Weather;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DiaryService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -45,6 +43,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     private final IBinder mBinder = new DiaryBinder();
     private GoogleApiClient mGoogleApiClient;
 
+    private MusicManager mMusicManager;
     private SelfieManager mSelfieManager;
     private List<Place> places = new ArrayList<>();
     private List<Weather> weathers = new ArrayList<>();
@@ -95,6 +94,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         mSelfieManager = new SelfieManager(getApplicationContext());
         mSelfieManager.start();
 
+        mMusicManager = new MusicManager(getApplicationContext());
         collectPlayingMusic();
         collectNotificationData();
 
@@ -107,6 +107,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
         run = false;
         mSelfieManager.stop();
+        mMusicManager.stopMusicReceiver();
         mGoogleApiClient.disconnect();
         stopForeground(true);
     }
@@ -141,18 +142,6 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         return mBinder;
     }
 
-    @Override
-    public boolean onUnbind(Intent intent) {
-        Log.i(TAG, "unbind");
-
-        return false;
-    }
-
-    @Override
-    public void onRebind(Intent intent) {
-        Log.i(TAG, "rebind");
-    }
-
     public void clearData() {
         places.clear();
         weathers.clear();
@@ -165,7 +154,10 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
                 if (likelyPlaces.getCount() > 0) {
                     String place = likelyPlaces.get(0).getPlace().getName().toString();
                     if (places.isEmpty() || !places.get(places.size() - 1).getName().equals(place)) {
-                        places.add(new Place(System.currentTimeMillis(), place));
+                        long time = System.currentTimeMillis();
+                        if (!places.isEmpty())
+                            places.get(places.size() - 1).setEndTime(time);
+                        places.add(new Place(time, place));
                         Log.i(TAG, "place");
                     }
                 }
@@ -182,14 +174,14 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     }
 
     private void collectPlayingMusic() {
-        new MusicManager(getApplicationContext()).getPlayingMusicInfo(music -> {
+        mMusicManager.startMusicReceiver(music -> {
             musics.add(music);
             Log.i(TAG, "music");
         });
     }
 
     private void collectNotificationData() {
-        new NotificationParser().collectNotificationData(getApplicationContext() ,notification -> {
+        new NotificationParser().collectNotificationData(getApplicationContext(), notification -> {
             notifications.add(notification.getStringExtra("notification"));
             Log.i(TAG, "notification");
         });
@@ -200,6 +192,9 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     }
 
     public List<Place> getPlaces() {
+        if (!places.isEmpty())
+            places.get(places.size() - 1).setEndTime(System.currentTimeMillis());
+        Collections.sort(places);
         return places;
     }
 
@@ -207,10 +202,12 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         return weathers;
     }
 
-    public List<Music> getMusics() { return musics; }
+    public List<Music> getMusics() {
+        return musics;
+    }
 
-    public FacePhoto[] getPhotos() {
-        return mSelfieManager.getPhotos();
+    public FacePhoto getPhoto() {
+        return mSelfieManager.getPhoto();
     }
 
     public long getStart() {

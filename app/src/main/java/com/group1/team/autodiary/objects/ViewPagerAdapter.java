@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.group1.team.autodiary.Fragments.DiaryFragment;
 import com.group1.team.autodiary.Fragments.StatisticsFragment;
-import com.group1.team.autodiary.activities.DiaryActivity;
 
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -16,7 +15,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
-        diaryFragment = new DiaryFragment();
+        diaryFragment = DiaryFragment.getInstance();
         statisticsFragment = new StatisticsFragment();
     }
 

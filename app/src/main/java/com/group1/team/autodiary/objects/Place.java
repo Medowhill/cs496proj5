@@ -1,24 +1,39 @@
 package com.group1.team.autodiary.objects;
 
-/**
- * Created by q on 2017-01-21.
- */
+import android.support.annotation.NonNull;
 
-public class Place {
+public class Place implements Comparable<Place> {
 
-    private long time;
-    private String name;
+    private long mTime, mEndTime;
+    private String mName;
 
     public Place(long time, String name) {
-        this.time = time;
-        this.name = name;
+        this.mTime = time;
+        this.mName = name;
     }
 
     public long getTime() {
-        return time;
+        return mTime;
     }
 
     public String getName() {
-        return name;
+        return mName;
+    }
+
+    public void setEndTime(long endTime) {
+        this.mEndTime = endTime;
+    }
+
+    public long getDuration() {
+        return mEndTime - mTime;
+    }
+
+    @Override
+    public int compareTo(@NonNull Place o) {
+        long d = o.getDuration() - this.getDuration();
+        if (d == 0)
+            return 0;
+
+        return (int) (d / Math.abs(d));
     }
 }

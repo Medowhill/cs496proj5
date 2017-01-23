@@ -4,17 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.util.Log;
 
 import com.group1.team.autodiary.objects.Music;
-import com.group1.team.autodiary.objects.Weather;
 
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by q on 2017-01-22.
- */
 
 public class MusicManager {
 
@@ -22,22 +17,21 @@ public class MusicManager {
         void callback(Music music);
     }
 
-    public interface Callback2 {
-        void callback(List<Music> musics);
+    private Context mContext;
+    private BroadcastReceiver mReceiver;
+
+    public MusicManager(Context context) {
+        mContext = context;
     }
 
-    Context mContext;
-
-    public MusicManager(Context context) { mContext = context; }
-
-    public void getPlayingMusicInfo(Callback callback) {
+    public void startMusicReceiver(Callback callback) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.android.music.metachanged");
         intentFilter.addAction("com.android.music.playstatechanged");
         intentFilter.addAction("com.android.music.playbackcomplete");
         intentFilter.addAction("com.android.music.queuechanged");
 
-        BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -46,15 +40,21 @@ public class MusicManager {
                 String album = intent.getStringExtra("album");
                 String track = intent.getStringExtra("track");
 
-                Music playingMusicInfo = new Music(action, artist, album, track);
-                callback.callback(playingMusicInfo);
+                if (track != null) {
+                    Music playingMusicInfo = new Music(action, artist, album, track);
+                    callback.callback(playingMusicInfo);
+                }
             }
         };
 
         mContext.registerReceiver(mReceiver, intentFilter);
     }
 
-    public String[] getMostFrequentlyPlayedMusic(List<Music> musics) {
+    public void stopMusicReceiver() {
+        mContext.unregisterReceiver(mReceiver);
+    }
+
+    public static String[] getMostFrequentlyPlayedMusic(List<Music> musics) {
         if (musics.size() == 0) return null;
 
         HashMap<String, Integer> hashMap = new HashMap<>();
@@ -75,7 +75,7 @@ public class MusicManager {
             }
         }
 
-        return new String[] {
+        return new String[]{
                 mostFrequentlyPlayedMusic.getArtist(),
                 mostFrequentlyPlayedMusic.getTrack(),
                 playedNum + ""

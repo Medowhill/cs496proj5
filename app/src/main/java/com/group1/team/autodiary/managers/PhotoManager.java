@@ -63,7 +63,6 @@ public class PhotoManager {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = 4;
             try {
-                Log.i("cs496test", PATH + names.get(rand));
                 final Bitmap bitmap = BitmapFactory.decodeFile(PATH + names.get(rand), options);
                 if (bitmap != null) {
                     new Thread(() -> {

@@ -7,7 +7,6 @@ import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
@@ -26,7 +25,7 @@ import java.io.IOException;
 
 public class SelfieManager {
 
-    private static String TAG;
+    private static String TAG = "cs496test";
     private static final int ON_PERIOD = 30 * 60 * 1000, OFF_PERIOD = 3 * 60 * 1000;
 
     private Context mContext;
@@ -34,7 +33,7 @@ public class SelfieManager {
     private WindowManager.LayoutParams mParams;
     private SurfaceView mSurfaceView;
     private Camera mCamera;
-    private FacePhoto[] mPhotos = new FacePhoto[4];
+    private FacePhoto mPhoto;
     private boolean mRun = false;
 
     private Handler mHandler = new Handler() {
@@ -141,55 +140,37 @@ public class SelfieManager {
         });
     }
 
-    private File getFile(long time) {
-        if (!Environment.getExternalStorageState().equals("mounted"))
-            return null;
-
-        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "AutoDiary");
-        if (!dir.exists())
-            if (!dir.mkdirs())
-                return null;
-
-        return new File(dir.getPath() + File.separator + time + ".jpg");
-    }
-
     private void detectFace(final Bitmap bitmap) {
         new Thread(() -> {
             FaceAnnotation face = ImageRecognitionRequest.getFace(new ImageRecognitionRequest(mContext).request(bitmap, ImageRecognitionRequest.REQUEST_FACE));
             if (face != null) {
-                int anger = FacePhoto.faceToInt(face.getAngerLikelihood());
                 int joy = FacePhoto.faceToInt(face.getJoyLikelihood());
-                int sorrow = FacePhoto.faceToInt(face.getSorrowLikelihood());
-                int surprised = FacePhoto.faceToInt(face.getSurpriseLikelihood());
-                FacePhoto photo = new FacePhoto(System.currentTimeMillis(), anger, joy, sorrow, surprised);
-
-                boolean save = false;
-                for (int i = 0; i < mPhotos.length; i++) {
-                    if (mPhotos[i] == null || photo.getFeeling(i) > mPhotos[i].getFeeling(i)) {
-                        mPhotos[i] = photo;
-                        save = true;
-                        break;
-                    }
-                }
-                if (save) {
-                    File pictureFile = getFile(photo.getTime());
-                    if (pictureFile != null) {
-                        try {
-                            FileOutputStream fileOutputStream = new FileOutputStream(pictureFile);
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-                            bitmap.recycle();
-                            fileOutputStream.close();
-                            Log.i(TAG, "photo");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                if (joy > 0 && (mPhoto == null || joy > mPhoto.getJoy())) {
+                    if (mPhoto != null) {
+                        File file = new File(mContext.getFilesDir().getPath() + File.separator + mPhoto.getFileName());
+                        Log.i(TAG, file.getPath());
+                        if (file.exists()) {
+                            boolean b = file.delete();
+                            Log.i(TAG, b + "");
                         }
+                    }
+
+                    mPhoto = new FacePhoto(System.currentTimeMillis(), joy);
+                    try {
+                        FileOutputStream fileOutputStream = mContext.openFileOutput(mPhoto.getFileName(), Context.MODE_PRIVATE);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                        bitmap.recycle();
+                        fileOutputStream.close();
+                        Log.i(TAG, "photo");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
         }).start();
     }
 
-    public FacePhoto[] getPhotos() {
-        return mPhotos;
+    public FacePhoto getPhoto() {
+        return mPhoto;
     }
 }
