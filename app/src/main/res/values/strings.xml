@@ -21,6 +21,7 @@
     <string name="main_dialog_message">정말 오늘 하루가 끝났나요?</string>
     <string name="main_dialog_positive">네</string>
     <string name="main_dialog_negative">아니요</string>
+    <string name="main_speech">오늘도 즐거운 하루 되세요.</string>
 
     <string name="diary_no">작성된 일기 없음</string>
     <string name="diary_text_date_format">yyyy년 M월 d일 E요일</string>
@@ -34,84 +35,103 @@
         <item>구겨지지 않게 일기장 펴는 중</item>
     </string-array>
 
-    <string name="diary_wakeup_date_format">오늘은 a h시 m분에 일어났다.\u0020</string>
+    <string name="diary_wakeup_format" formatted="false">오늘은 %s에 일어났다. =오늘의 기상시각은 %s이었다. =아침에 눈을 떠보니 시계가 %s을 가리키고 있었다.\u0020</string>
+    <string name="diary_wakeup_date_format">a h시 m분</string>
 
-    <string name="diary_weather_format" formatted="false">날씨는 %s고 %s다. 그리고 %s다. 그래서 %s다.\u0020</string>
+    <string name="diary_weather_format" formatted="false">날씨는 %s고 %s다. 그리고 %s다. %s %s다.\u0020</string>
     <string-array name="diary_weather_temp">
-        <item>춥</item>
-        <item>쌀쌀하</item>
-        <item>시원하</item>
-        <item>따뜻하</item>
-        <item>덥</item>
+        <item>춥=얼어 죽을 것 같=기온이 영하</item>
+        <item>쌀쌀하=약간 춥</item>
+        <item>시원하=선선하</item>
+        <item>따뜻하=따스하=조금 덥</item>
+        <item>덥=쪄 죽을 것 같=기온이 30도가 넘</item>
     </string-array>
     <string-array name="diary_weather_description">
-        <item>눈과 비가 왔</item>
-        <item>눈이 왔</item>
-        <item>비가 왔</item>
-        <item>안개가 꼈</item>
-        <item>흐렸</item>
-        <item>맑았</item>
+        <item>눈과 비가 왔=눈과 비가 번갈아 내렸=눈과 비가 쏟아졌</item>
+        <item>눈이 왔=눈이 내렸=눈이 쏟아졌=함박눈이 왔=눈이 발목까지 쌓였</item>
+        <item>비가 왔=비가 쏟아졌=비가 주륵주륵 내렸</item>
+        <item>안개가 꼈=안개 때문에 가시거리가 짧았</item>
+        <item>흐렸=먹구름이 끼었=해가 안 보였=우중충했</item>
+        <item>맑았=하늘이 깨끗했</item>
     </string-array>
     <string-array name="diary_weather_humidity">
         <item>건조했</item>
         <item>공기가 상쾌했</item>
-        <item>습했</item>
+        <item>습했=공기 중에 습기가 가득했</item>
+    </string-array>
+    <string-array name="diary_weather_reason">
+        <item>너무 추워서=옷을 두껍게 입어야 해서</item>
+        <item>너무 더워서=푹푹 쪄서</item>
+        <item>눈이 많이와서=쌓인 눈 때문에</item>
+        <item>비가 많이와서=비 때문에</item>
+        <item>날씨가 좋아서=좋은 날씨 덕분에</item>
     </string-array>
     <string-array name="diary_weather_attitude">
-        <item>힘들었</item>
-        <item>활동하기 편했</item>
+        <item>힘들었=활동하기에는 별로였=힘든 하루였</item>
+        <item>활동하기 편했=즐거운 하루였</item>
     </string-array>
 
-    <string name="diary_forecast_format" formatted="false">내일은 %s고 %s 것이라고 한다. %s다.\u0020</string>
+    <string name="diary_forecast_format" formatted="false">내일은 %s고 %s 것이라고 한다. %s %s다.\u0020</string>
     <string-array name="diary_forecast_description">
-        <item>눈과 비가 올</item>
-        <item>눈이 올</item>
-        <item>비가 올</item>
-        <item>안개가 낄</item>
-        <item>흐릴</item>
-        <item>맑을</item>
+        <item>눈과 비가 올=눈이랑 비가 번갈아 내릴=눈과 비가 쏟아질</item>
+        <item>눈이 올=눈이 내릴=눈이 쏟아질=함박눈이 올</item>
+        <item>비가 올=비가 쏟아질=비가 온종일 내릴</item>
+        <item>안개가 낄=안개 때문에 앞이 잘 안보일</item>
+        <item>흐릴=하늘에 구름이 가득할=해가 안 보일=우중충할</item>
+        <item>맑을=하늘이 깨끗할</item>
+    </string-array>
+    <string-array name="diary_forecast_reason">
+        <item>추울 것 같아서=옷을 껴입어야 할 것 같아서</item>
+        <item>더울 것 같아서=더워서 기운이 없을 것 같아</item>
+        <item>눈 때문에=눈이 쌓일 것 같아서</item>
+        <item>비 때문에=비가 많이 올 것 같아서</item>
+        <item>날씨가 좋을 것 같아서=내일의 날씨를 생각하니</item>
     </string-array>
     <string-array name="diary_forecast_attitude">
-        <item>걱정된</item>
-        <item>기대된</item>
+        <item>걱정된=내일은 힘든 하루가 될 것 같=내일은 집에 있고 싶</item>
+        <item>기대된=즐겁</item>
     </string-array>
 
-    <string name="diary_place_format" formatted="false">%s에 갔다.\u0020</string>
-    <string name="diary_place_attitude_format" formatted="false">내일은 %s고 싶다.\u0020</string>
+    <string name="diary_place_format" formatted="false">%s에 갔다. =%s에 방문했다. =%s에 가보았다.\u0020</string>
+    <string name="diary_place_attitude_format" formatted="false">%s다. 내일은 %s고 싶다.\u0020</string>
     <string name="diary_place_time_format">a h시</string>
     <string name="diary_place_major_detail_format" formatted="false">%s에는 %s,\u0020</string>
-    <string name="diary_place_bothExist">그 외에도\u0020</string>
+    <string name="diary_place_bothExist">그 외에도 =그 밖에도\u0020</string>
+    <string-array name="diary_place_reason">
+        <item>재미없는 하루였=심심한 하루였=잉여한 하루였</item>
+        <item>바쁜 하루였=정신 없는 하루였=돌아다니느라 힘들었</item>
+    </string-array>
     <string-array name="diary_place_attitude">
-        <item>더 다양한 장소에 방문해보</item>
-        <item>방에서 좀 쉬</item>
+        <item>더 다양한 장소에 방문해보=평소에 안 가본 곳에 가</item>
+        <item>방에서 좀 쉬=휴식을 취하=누워서 편히 쉬</item>
     </string-array>
 
-    <string name="diary_plan_format" formatted="false">오늘은 %s 할 예정이었다. 할 일이 %s는데 계획대로 잘 했는지 생각해 봐야겠다.\u0020</string>
+    <string name="diary_plan_format" formatted="false">오늘은 %s 할 예정이었다. 할 일이 %s는데 계획대로 잘 했는지 생각해 봐야겠다. =오늘은 %s 하기로 했었다. 해야 할 것이 %s는데 다 했는지 생각해 봐야겠다.\u0020</string>
     <string-array name="diary_plan_attitude">
-        <item>별로 없었</item>
-        <item>많았</item>
-        <item>엄청 많았</item>
+        <item>별로 없었=거의 없었=적었</item>
+        <item>많았=꽤 많았=꽤 있었</item>
+        <item>엄청 많았=아주 많았=수없이 많았</item>
     </string-array>
-    <string name="diary_plan_tomorrow_format" formatted="false">내일은 %s 할 예정이다. %s 하루가 될 것 같다.\u0020</string>
+    <string name="diary_plan_tomorrow_format" formatted="false">내일은 %s 할 예정이다. %s 하루가 될 것 같다. =내일 하루는 %s 해야한다. %s 하루가 예상된다.\u0020</string>
     <string-array name="diary_plan_tomorrow_attitude">
-        <item>여유로운</item>
-        <item>바쁜</item>
-        <item>정신없는</item>
+        <item>여유로운=쉴 수 있는=휴식을 취할 수 있는</item>
+        <item>바쁜=힘든</item>
+        <item>정신없는=고통스러운=험난한</item>
     </string-array>
 
-    <string name="diary_news_format" formatted="false">우리 사회에서는 %s 같은 일들이 있었다. 한 번 생각해 봐야 할 문제인 것 같다.\u0020</string>
+    <string name="diary_news_format" formatted="false">우리 사회에서는 %s 같은 일들이 있었다. 한 번 생각해 봐야 할 문제인 것 같다. =오늘 하루 동안 %s 같은 일들이 일어났다. 고민할 가치가 있는 일인 것 같다.\u0020</string>
 
     <string name="diary_usage_format" formatted="false">오늘 %s 사용했다. 또 핸드폰을 %s 사용했다. %s 사용한 것 같다.\u0020</string>
     <string-array name="diary_usage_attitude">
-        <item>생각보다 적게</item>
-        <item>생각보다 많이</item>
-        <item>너무 많이</item>
+        <item>생각보다 적게=정말 조금</item>
+        <item>생각보다 많이=꽤 많이</item>
+        <item>너무 많이=중독된 것 처럼</item>
     </string-array>
 
-    <string name="diary_music_format" formatted="false">오늘 %s의 %s라는 곡을 들었다. %s\u0020</string>
+    <string name="diary_music_format" formatted="false">오늘 %s의 %s라는 곡을 들었다. %s다. =오늘 들은 노래 중에 %s의 %s라는 곡이 기억에 남는다. %s다.\u0020</string>
     <string name="diary_music_unknown_singer">모르는 가수</string>
     <string name="diary_music_unknown_music">제목을 모르는 노래</string>
-    <string name="diary_music_attitude">정말 대단한 곡이었다.=듣는 내내 즐거웠다.=중독성 있는 노래였다.=훌륭한 노래였다.</string>
+    <string name="diary_music_attitude">정말 대단한 곡이었=듣는 내내 즐거웠=중독성 있는 노래였=훌륭한 노래였</string>
 
     <string name="diary_phone_format" formatted="false">%s %d분 동안 통화했다. %s\u0020</string>
     <string name="diary_phone_missed_format" formatted="false">%s에게서 전화가 왔는데 받지 못했다. %s\u0020</string>

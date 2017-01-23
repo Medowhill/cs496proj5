@@ -139,6 +139,7 @@ public class DiaryActivity extends AppCompatActivity {
         bindService(new Intent(getApplicationContext(), DiaryService.class), connection, BIND_AUTO_CREATE);
 
         loadingView = (LoadingView) findViewById(R.id.diary_loading);
+        loadingView.start();
 
         viewPager = (ViewPager) findViewById(R.id.diary_viewpager);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());

@@ -23,6 +23,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
     private String[] mLoadings;
     private int mLoadingIndex, mLoadingLength;
     private int mWidth, mHeight;
+    private boolean mStart;
     private Paint paint;
 
     public LoadingView(Context context, AttributeSet attrs) {
@@ -41,8 +42,10 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         mThread = new TextThread(getHolder());
-        mThread.mRun = true;
-        mThread.start();
+        if (mStart) {
+            mThread.mRun = true;
+            mThread.start();
+        }
     }
 
     @Override
@@ -56,6 +59,14 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
         stop();
     }
 
+    public void start() {
+        mStart = true;
+        if (mThread != null) {
+            mThread.mRun = true;
+            mThread.start();
+        }
+    }
+
     public void stop() {
         if (mThread != null) {
             mThread.mClear = true;
@@ -64,6 +75,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            mThread = null;
         }
     }
 
