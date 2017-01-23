@@ -31,7 +31,6 @@ public class NotificationParser extends NotificationListenerService {
         BroadcastReceiver mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // TODO : do something
                 Log.d("DiaryService", "Get Notification!");
                 callback.callback(intent);
             }
