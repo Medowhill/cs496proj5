@@ -1,10 +1,13 @@
 package com.group1.team.autodiary.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.speech.tts.TextToSpeech;
@@ -34,6 +37,8 @@ import java.util.Locale;
 
 
 public class DiaryFragment extends Fragment implements TextToSpeech.OnInitListener {
+
+    public static int REQUEST_SHARE_IMAGE = 0;
 
     private LinearLayout layout, layoutLabel, layoutFace;
     private TextView textView, textViewDate, textViewLabel, textViewFace;
@@ -128,6 +133,42 @@ public class DiaryFragment extends Fragment implements TextToSpeech.OnInitListen
         TextView textViewLabelTitle = (TextView) view.findViewById(R.id.diary_textView_labelTitle);
         TextView textViewFaceTitle = (TextView) view.findViewById(R.id.diary_textView_faceTitle);
 
+        textView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                shareText(mDiary);
+                return true;
+            }
+        });
+        textViewLabel.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                shareText(mLabelDescription);
+                return true;
+            }
+        });
+        textViewFace.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                shareText(mFaceDescription);
+                return true;
+            }
+        });
+        imageViewLabel.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                shareImage(mBitmapLabel);
+                return true;
+            }
+        });
+        imageViewFace.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                shareImage(mBitmapFace);
+                return true;
+            }
+        });
+
         textView.setTypeface(typeface);
         textViewDate.setTypeface(typeface);
         textViewLabel.setTypeface(typeface);
@@ -153,6 +194,7 @@ public class DiaryFragment extends Fragment implements TextToSpeech.OnInitListen
         mDiary += util.planToDiary(diaryActivity.getNextPlans(), false);
         mDiary += util.phoneToDiary(diaryActivity.getCallLogManager());
         mDiary += util.usageToDiary(diaryActivity.getUsages());
+        mDiary += util.assetToDiary(diaryActivity.getAssetInfos());
         mDiary += util.newsToDiary(diaryActivity.getNews().subList(0, 3));
         mDiary += util.musicToDiary(diaryActivity.getMusics());
         mDiary += util.weatherToDiary(diaryActivity.getForecasts(), false);
@@ -172,6 +214,35 @@ public class DiaryFragment extends Fragment implements TextToSpeech.OnInitListen
         handler.sendEmptyMessage(0);
 
         new Thread(() -> save()).start();
+    }
+
+    private void shareText(String text) {
+        if (text == null || text.length() == 0)
+            return;
+
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, text);
+        startActivity(Intent.createChooser(intent, getResources().getString(R.string.diary_share)));
+    }
+
+    private void shareImage(Bitmap bitmap) {
+        if (bitmap == null)
+            return;
+
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "temp.jpg");
+        try {
+            FileOutputStream stream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("image/jpeg");
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+        getActivity().startActivityForResult(Intent.createChooser(intent, getResources().getString(R.string.diary_share)), REQUEST_SHARE_IMAGE);
     }
 
     private void save() {
@@ -213,6 +284,10 @@ public class DiaryFragment extends Fragment implements TextToSpeech.OnInitListen
 
     private String getFileName(long time) {
         return new SimpleDateFormat("yyyyMMdd", Locale.KOREA).format(time);
+    }
+
+    public void deleteTempFile() {
+        new File(Environment.getExternalStorageDirectory() + File.separator + "temp").delete();
     }
 
     public void load(long time) {

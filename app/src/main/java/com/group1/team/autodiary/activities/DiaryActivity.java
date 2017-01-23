@@ -181,6 +181,15 @@ public class DiaryActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.from_left, R.anim.to_right);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == DiaryFragment.REQUEST_SHARE_IMAGE) {
+            DiaryFragment diaryFragment = (DiaryFragment) viewPagerAdapter.instantiateItem(viewPager, 0);
+            if (diaryFragment != null)
+                diaryFragment.deleteTempFile();
+        }
+    }
+
     private void sendDataToFragment() {
         if (loadingView != null)
             loadingView.stop();
@@ -198,7 +207,9 @@ public class DiaryActivity extends AppCompatActivity {
         return mPlaces;
     }
 
-    public List<AssetInfo> getAssetInfos() { return mAssetInfos; }
+    public List<AssetInfo> getAssetInfos() {
+        return mAssetInfos;
+    }
 
     public List<Weather> getWeathers() {
         return mWeathers;

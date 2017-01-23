@@ -4,13 +4,13 @@ import android.content.Context;
 import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
-import android.util.Log;
 
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.managers.CallLogManager;
 import com.group1.team.autodiary.managers.MusicManager;
 import com.group1.team.autodiary.objects.AppUsage;
+import com.group1.team.autodiary.objects.AssetInfo;
 import com.group1.team.autodiary.objects.LabelPhoto;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
@@ -342,6 +342,28 @@ public class DiaryUtil {
             track = mContext.getString(R.string.diary_music_unknown_music);
         return String.format(pick(R.string.diary_music_format),
                 singer, track + (hasLastSound(track) ? yi : ""), pick(R.string.diary_music_attitude));
+    }
+
+    public String assetToDiary(List<AssetInfo> assets) {
+        if (assets == null || assets.isEmpty())
+            return pick(R.string.diary_asset_zero);
+
+        int sum = 0;
+        for (AssetInfo asset : assets) {
+            if (asset.getDepositOrWithdraw() == AssetInfo.WITHDRAW)
+                sum += asset.getSum();
+        }
+
+        if (sum == 0)
+            return pick(R.string.diary_asset_zero);
+
+        int attitude;
+        if (sum > 20000)
+            attitude = 1;
+        else
+            attitude = 0;
+
+        return String.format(pick(R.string.diary_asset_format), sum, pick(R.array.diary_asset_attitude, attitude));
     }
 
     public String endToDiary() {
