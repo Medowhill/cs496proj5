@@ -37,11 +37,13 @@
                 android:showDividers="middle"
                 android:divider="@drawable/empty_tall_divider">
                 <android.support.v7.widget.CardView
+                    android:id="@+id/call_log"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="#22000000"
                     app:cardElevation="0dp"
-                    android:clickable="true">
+                    android:clickable="true"
+                    android:onClick="showHistory">
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"

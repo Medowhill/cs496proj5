@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.group1.team.autodiary.Fragments.DiaryFragment;
@@ -22,6 +23,7 @@ import com.group1.team.autodiary.managers.CallLogManager;
 import com.group1.team.autodiary.managers.NewsManager;
 import com.group1.team.autodiary.managers.PhotoManager;
 import com.group1.team.autodiary.managers.PlanManager;
+import com.group1.team.autodiary.managers.StatisticsDialogFragmentManager;
 import com.group1.team.autodiary.managers.WeatherManager;
 import com.group1.team.autodiary.objects.AppUsage;
 import com.group1.team.autodiary.objects.AssetInfo;
@@ -191,6 +193,12 @@ public class DiaryActivity extends AppCompatActivity {
                 diaryFragment.finishLoadData(this);
             if (statisticsFragment != null)
                 statisticsFragment.finishLoadData(this);
+        }
+    }
+
+    public void showHistory(View view) {
+        if (view.getId() == R.id.call_log) {
+            new StatisticsDialogFragmentManager(DiaryActivity.this).generateStatisticsDialog(StatisticsDialogFragmentManager.CALL_LOG_DIALOG, mCallLogManager.getAllItems());
         }
     }
 

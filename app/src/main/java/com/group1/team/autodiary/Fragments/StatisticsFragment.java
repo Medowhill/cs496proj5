@@ -13,6 +13,7 @@ import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.activities.DiaryActivity;
 import com.group1.team.autodiary.managers.CallLogManager;
 import com.group1.team.autodiary.managers.MusicManager;
+import com.group1.team.autodiary.managers.StatisticsDialogFragmentManager;
 import com.group1.team.autodiary.objects.AppUsage;
 import com.group1.team.autodiary.objects.AssetInfo;
 import com.group1.team.autodiary.objects.CallLog;

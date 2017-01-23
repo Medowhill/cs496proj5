@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.support.v4.content.ContextCompat;
+import android.telecom.Call;
 
 import com.group1.team.autodiary.objects.CallLog;
 
@@ -126,4 +127,6 @@ public class CallLogManager {
         }
         return null;
     }
+
+    public List<CallLog> getAllItems() { return callLogs; }
 }
