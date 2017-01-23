@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +46,7 @@ public class DiaryActivity extends AppCompatActivity {
     private ViewPager viewPager;
 
     private ViewPagerAdapter viewPagerAdapter;
+    private TextToSpeech mSpeech;
 
     private CallLogManager mCallLogManager;
     private List<Place> mPlaces;
@@ -144,11 +146,22 @@ public class DiaryActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.diary_viewpager);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
+
+        mSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                mSpeech.speak(getString(R.string.diary_speech), TextToSpeech.QUEUE_FLUSH, null);
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         loadingView.stop();
+        if (mSpeech != null) {
+            mSpeech.stop();
+            mSpeech.shutdown();
+        }
         super.onDestroy();
     }
 

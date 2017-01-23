@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Auto Diary</string>
+    <string name="app_name">일기 대신 써줌</string>
     <string name="tag">cs496test</string>
 
     <string name="eul_kor">을</string>
@@ -23,6 +23,9 @@
     <string name="main_dialog_negative">아니요</string>
     <string name="main_speech">오늘도 즐거운 하루 되세요.</string>
 
+    <string name="diary_speech">오늘 하루도 수고하셨어요.</string>
+    <string name="diary_notification_title">정보 수집 중</string>
+    <string name="diary_notification">일기를 쓰기 위해 백그라운드에서 정보를 수집 중입니다.</string>
     <string name="diary_no">작성된 일기 없음</string>
     <string name="diary_text_date_format">yyyy년 M월 d일 E요일</string>
     <string name="diary_text_label">오늘의 사진</string>

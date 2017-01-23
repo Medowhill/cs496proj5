@@ -226,6 +226,7 @@ public class DiaryUtil {
         String str = "";
         for (String news_ : news) {
             news_ = news_.replace((char) 8230, ' ');
+            news_ = news_.replace((char) 26420, (char) 48149);
             news_ = news_.replace("\"", "");
             news_ = news_.replaceAll("\'", "");
             int index;

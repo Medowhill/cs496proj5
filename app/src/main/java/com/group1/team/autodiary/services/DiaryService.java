@@ -2,6 +2,7 @@ package com.group1.team.autodiary.services;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -23,6 +24,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.group1.team.autodiary.R;
+import com.group1.team.autodiary.activities.MainActivity;
 import com.group1.team.autodiary.managers.MusicManager;
 import com.group1.team.autodiary.managers.SelfieManager;
 import com.group1.team.autodiary.managers.WeatherManager;
@@ -74,7 +76,15 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         Log.i(TAG, "start");
 
         mStart = System.currentTimeMillis();
-        startForeground(1, new Notification());
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                0, new Intent(getApplicationContext(), MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Builder builder = new Notification.Builder(getApplicationContext());
+        builder.setSmallIcon(R.drawable.diary_notification);
+        builder.setPriority(Notification.PRIORITY_MIN);
+        builder.setContentTitle(getString(R.string.diary_notification_title));
+        builder.setContentText(getString(R.string.diary_notification));
+        builder.setContentIntent(pendingIntent);
+        startForeground(1, builder.build());
         new Thread(() -> {
             mGoogleApiClient.connect();
         }).start();
