@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -111,6 +113,10 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.INTERNET
             }, PERMISSION);
         }
+
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        Log.d("MusicManager", "Music On? : " + audioManager.isMusicActive());
     }
 
     @Override
@@ -173,15 +179,5 @@ public class MainActivity extends AppCompatActivity {
             if (serviceClass.getName().equals(service.service.getClassName()))
                 return true;
         return false;
-    }
-
-    public void sendNotification(View view) {
-        NotificationManager nManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        NotificationCompat.Builder ncomp = new NotificationCompat.Builder(this);
-        ncomp.setContentTitle("My Notification");
-        ncomp.setContentText("Notification Listener Service Example");
-        ncomp.setTicker("Notification Listener Service Example");
-        ncomp.setAutoCancel(true);
-        nManager.notify((int) System.currentTimeMillis(), ncomp.build());
     }
 }

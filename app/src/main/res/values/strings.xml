@@ -128,4 +128,5 @@
     <string name="hour">시간</string>
     <string name="times">회</string>
     <string name="visited">방문</string>
+    <string name="won">원</string>
 </resources>

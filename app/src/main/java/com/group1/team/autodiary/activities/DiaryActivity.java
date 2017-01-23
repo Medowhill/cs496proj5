@@ -23,6 +23,7 @@ import com.group1.team.autodiary.managers.PhotoManager;
 import com.group1.team.autodiary.managers.PlanManager;
 import com.group1.team.autodiary.managers.WeatherManager;
 import com.group1.team.autodiary.objects.AppUsage;
+import com.group1.team.autodiary.objects.AssetInfo;
 import com.group1.team.autodiary.objects.FacePhoto;
 import com.group1.team.autodiary.objects.LabelPhoto;
 import com.group1.team.autodiary.objects.Music;
@@ -48,6 +49,7 @@ public class DiaryActivity extends AppCompatActivity {
 
     private CallLogManager mCallLogManager;
     private List<Place> mPlaces;
+    private List<AssetInfo> mAssetInfos;
     private List<Weather> mWeathers, mForecasts;
     private List<AppUsage> mUsages;
     private List<String> mNews, mPlans, mNextPlans;
@@ -66,11 +68,13 @@ public class DiaryActivity extends AppCompatActivity {
             mPlaces = new ArrayList<>();
             mWeathers = new ArrayList<>();
             mMusics = new ArrayList<>();
+            mAssetInfos = new ArrayList<>();
 
             DiaryService diaryService = ((DiaryService.DiaryBinder) service).getService();
             mFinish = System.currentTimeMillis();
             mStart = diaryService.getStart();
             mPlaces.addAll(diaryService.getPlaces());
+            mAssetInfos.addAll(diaryService.getAssetInfos());
             mWeathers.addAll(diaryService.getWeathers());
             mMusics.addAll(diaryService.getMusics());
             FacePhoto facePhoto = diaryService.getPhoto();
@@ -179,6 +183,8 @@ public class DiaryActivity extends AppCompatActivity {
     public List<Place> getPlaces() {
         return mPlaces;
     }
+
+    public List<AssetInfo> getAssetInfos() { return mAssetInfos; }
 
     public List<Weather> getWeathers() {
         return mWeathers;

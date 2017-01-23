@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
+import android.provider.MediaStore;
+import android.util.Log;
 
 import com.group1.team.autodiary.objects.Music;
 
@@ -17,11 +20,18 @@ public class MusicManager {
         void callback(Music music);
     }
 
+    private static boolean isMusicActive;
+    private static boolean metachangedStack;
+    private AudioManager audioManager;
+
     private Context mContext;
     private BroadcastReceiver mReceiver;
 
     public MusicManager(Context context) {
         mContext = context;
+        audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        isMusicActive = audioManager.isMusicActive();
+        metachangedStack = false;
     }
 
     public void startMusicReceiver(Callback callback) {
@@ -35,14 +45,40 @@ public class MusicManager {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                //String cmd = intent.getStringExtra("command");
+                String cmd = intent.getStringExtra("command");
                 String artist = intent.getStringExtra("artist");
                 String album = intent.getStringExtra("album");
                 String track = intent.getStringExtra("track");
 
                 if (track != null) {
-                    Music playingMusicInfo = new Music(action, artist, album, track);
-                    callback.callback(playingMusicInfo);
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(30);
+                        } catch (Exception e) {}
+
+                        Music playingMusicInfo = new Music(action, artist, album, track);
+
+                        if (action.equalsIgnoreCase("com.android.music.metachanged")) {
+                            if (metachangedStack) {
+                                metachangedStack = false;
+                                callback.callback(playingMusicInfo);
+                                isMusicActive = true;
+                            } else
+                                metachangedStack = true;
+                        } else if (action.equalsIgnoreCase("com.android.music.playstatechanged")) {
+                            isMusicActive = !isMusicActive;
+
+                            if (audioManager.isMusicActive()) {
+                                if (isMusicActive != audioManager.isMusicActive()) // pause -> next music
+                                    isMusicActive = audioManager.isMusicActive();
+                                else
+                                    callback.callback(playingMusicInfo);
+                            }
+                        }
+
+                        Log.d("MusicManager", "Action : " + action + " / Music On? : " + audioManager.isMusicActive() + " / Command : " + cmd);
+                    }).start();
+
                 }
             }
         };

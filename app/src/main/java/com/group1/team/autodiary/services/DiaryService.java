@@ -26,6 +26,7 @@ import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.managers.MusicManager;
 import com.group1.team.autodiary.managers.SelfieManager;
 import com.group1.team.autodiary.managers.WeatherManager;
+import com.group1.team.autodiary.objects.AssetInfo;
 import com.group1.team.autodiary.objects.FacePhoto;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
@@ -48,7 +49,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     private List<Place> places = new ArrayList<>();
     private List<Weather> weathers = new ArrayList<>();
     private List<Music> musics = new ArrayList<>();
-    private List<String> notifications = new ArrayList<>();
+    private List<AssetInfo> assetInfos = new ArrayList<>();
     private Location mLocation;
     private long mStart;
     private boolean run = false;
@@ -96,7 +97,7 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
 
         mMusicManager = new MusicManager(getApplicationContext());
         collectPlayingMusic();
-        collectNotificationData();
+        collectAssetInfo();
 
         return START_STICKY;
     }
@@ -180,10 +181,10 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
         });
     }
 
-    private void collectNotificationData() {
-        new NotificationParser().collectNotificationData(getApplicationContext(), notification -> {
-            notifications.add(notification.getStringExtra("notification"));
-            Log.i(TAG, "notification");
+    private void collectAssetInfo() {
+        new NotificationParser().collectAssetInfo(getApplicationContext(), assetInfo -> {
+            assetInfos.add(assetInfo);
+            Log.i(TAG, "asset info");
         });
     }
 
@@ -205,6 +206,8 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     public List<Music> getMusics() {
         return musics;
     }
+
+    public List<AssetInfo> getAssetInfos() { return assetInfos; }
 
     public FacePhoto getPhoto() {
         return mSelfieManager.getPhoto();

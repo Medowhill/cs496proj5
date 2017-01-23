@@ -7,12 +7,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.util.Log;
 
 import com.group1.team.autodiary.objects.AppUsage;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 public class AppUsageStatsManager {
@@ -36,10 +39,11 @@ public class AppUsageStatsManager {
 
     public List<AppUsage> getAppUsages(long dayStartTime, long dayEndTime) {
         List<AppUsage> appUsageStats = new ArrayList<>();
+        Log.d("AppUsageStatsManager", "start : " + new Date(dayStartTime).toString() + " / end : " + new Date(dayEndTime).toString());
 
         if (Build.VERSION.SDK_INT > 21) {
             final UsageStatsManager usageStatsManager = (UsageStatsManager) mContext.getSystemService(Context.USAGE_STATS_SERVICE);
-            List<UsageStats> statsList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, dayStartTime, dayEndTime);
+            List<UsageStats> statsList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, dayStartTime, dayEndTime + TimeUnit.DAYS.toMillis(1));
 
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);

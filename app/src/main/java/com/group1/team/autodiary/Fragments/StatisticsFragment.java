@@ -14,6 +14,7 @@ import com.group1.team.autodiary.activities.DiaryActivity;
 import com.group1.team.autodiary.managers.CallLogManager;
 import com.group1.team.autodiary.managers.MusicManager;
 import com.group1.team.autodiary.objects.AppUsage;
+import com.group1.team.autodiary.objects.AssetInfo;
 import com.group1.team.autodiary.objects.CallLog;
 import com.group1.team.autodiary.objects.Music;
 import com.group1.team.autodiary.objects.Place;
@@ -29,6 +30,7 @@ public class StatisticsFragment extends Fragment {
     CallLogManager mCallLogManager;
     List<Music> mMusics;
     List<Place> mPlaces;
+    List<AssetInfo> mAssetInfos;
 
     Handler handler;
 
@@ -49,34 +51,40 @@ public class StatisticsFragment extends Fragment {
                     String[] longestCallPerson = mCallLogManager.getLongestCallPerson();
                     if (longestCallPerson != null)
                         ((TextView) view.findViewById(R.id.longest_call_person)).setText(longestCallPerson[0] + " - " + longestCallPerson[1]);
-                    ((TextView) view.findViewById(R.id.total_call_time)).setText(String.valueOf(mCallLogManager.getTotalCallTime()) + getString(R.string.sec));
+                    ((TextView) view.findViewById(R.id.total_call_time)).setText(millisecTimeParser(mCallLogManager.getTotalCallTime()));
 
                     // total spent money part
+                    int totalWithdrawSum = getTotalSum(AssetInfo.WITHDRAW);
+                    ((TextView) view.findViewById(R.id.total_spent_money)).setText(totalWithdrawSum + getString(R.string.won));
 
                     // app usage part
-                    ((TextView) view.findViewById(R.id.first_most_used_app)).setText(mAppUsages.get(0).getName());
-                    ((TextView) view.findViewById(R.id.first_most_used_app_time)).setText(String.valueOf(mAppUsages.get(0).getTime() / 1000) + getString(R.string.sec));
-                    ((TextView) view.findViewById(R.id.second_most_used_app)).setText(mAppUsages.get(1).getName());
-                    ((TextView) view.findViewById(R.id.second_most_used_app_time)).setText(String.valueOf(mAppUsages.get(1).getTime() / 1000) + getString(R.string.sec));
-                    ((TextView) view.findViewById(R.id.third_most_used_app)).setText(mAppUsages.get(2).getName());
-                    ((TextView) view.findViewById(R.id.third_most_used_app_time)).setText(String.valueOf(mAppUsages.get(2).getTime() / 1000) + getString(R.string.sec));
+
+                    if (mAppUsages.get(0).getTime() != 0) {
+                        ((TextView) view.findViewById(R.id.first_most_used_app)).setText(mAppUsages.get(0).getName());
+                        ((TextView) view.findViewById(R.id.first_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(0).getTime()));
+                        if (mAppUsages.get(1).getTime() != 0) {
+                            ((TextView) view.findViewById(R.id.second_most_used_app)).setText(mAppUsages.get(1).getName());
+                            ((TextView) view.findViewById(R.id.second_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(1).getTime()));
+                            if (mAppUsages.get(2).getTime() != 0) {
+                                ((TextView) view.findViewById(R.id.third_most_used_app)).setText(mAppUsages.get(2).getName());
+                                ((TextView) view.findViewById(R.id.third_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(2).getTime()));
+                            }
+                        }
+                    }
 
                     // visited place part
                     HashMap.Entry<String, Long>[] longestVisitedPlaces = getLongestVisitedPlaces();
                     if (longestVisitedPlaces[0] != null) {
                         ((TextView) view.findViewById(R.id.first_longest_visited_place)).setText(longestVisitedPlaces[0].getKey());
-                        ((TextView) view.findViewById(R.id.first_longest_visited_place_time)).setText(
-                                String.valueOf(longestVisitedPlaces[0].getValue() / 1000) + getString(R.string.sec) + " " + getString(R.string.visited));
-                    }
-                    if (longestVisitedPlaces[1] != null) {
-                        ((TextView) view.findViewById(R.id.first_longest_visited_place)).setText(longestVisitedPlaces[1].getKey());
-                        ((TextView) view.findViewById(R.id.first_longest_visited_place_time)).setText(
-                                String.valueOf(longestVisitedPlaces[1].getValue() / 1000) + getString(R.string.sec) + " " + getString(R.string.visited));
-                    }
-                    if (longestVisitedPlaces[2] != null) {
-                        ((TextView) view.findViewById(R.id.first_longest_visited_place)).setText(longestVisitedPlaces[2].getKey());
-                        ((TextView) view.findViewById(R.id.first_longest_visited_place_time)).setText(
-                                String.valueOf(longestVisitedPlaces[2].getValue() / 1000) + getString(R.string.sec) + " " + getString(R.string.visited));
+                        ((TextView) view.findViewById(R.id.first_longest_visited_place_time)).setText(String.valueOf(millisecTimeParser(longestVisitedPlaces[0].getValue())));
+                        if (longestVisitedPlaces[1] != null) {
+                            ((TextView) view.findViewById(R.id.second_longest_visited_place)).setText(longestVisitedPlaces[1].getKey());
+                            ((TextView) view.findViewById(R.id.second_longest_visited_place_time)).setText(String.valueOf(millisecTimeParser(longestVisitedPlaces[1].getValue())));
+                            if (longestVisitedPlaces[2] != null) {
+                                ((TextView) view.findViewById(R.id.third_longest_visited_place)).setText(longestVisitedPlaces[2].getKey());
+                                ((TextView) view.findViewById(R.id.third_longest_visited_place_time)).setText(String.valueOf(millisecTimeParser(longestVisitedPlaces[2].getValue())));
+                            }
+                        }
                     }
 
                     // played music part
@@ -96,31 +104,22 @@ public class StatisticsFragment extends Fragment {
         mCallLogManager = diaryActivity.getCallLogManager();
         mMusics = diaryActivity.getMusics();
         mPlaces = diaryActivity.getPlaces();
+        mAssetInfos = diaryActivity.getAssetInfos();
         handler.sendEmptyMessage(0);
     }
 
-    // Now Place instance has getDuration method
-    // Also, places list is sorted due to its duration
-    // However, the redundancy is not removed
-    // You need to modify this method because of above changes
     public HashMap.Entry<String, Long>[] getLongestVisitedPlaces() {
         if (mPlaces.size() == 0) return new HashMap.Entry[]{null, null, null};
 
         HashMap<String, Long> hashMap = new HashMap<>();
 
-        for (int i = 0; i < mPlaces.size() - 1; i++) {
+        for (int i = 0; i < mPlaces.size(); i++) {
             String key = mPlaces.get(i).getName();
             if (hashMap.containsKey(key))
-                hashMap.put(key, hashMap.get(key) + mPlaces.get(i + 1).getTime() - mPlaces.get(i).getTime());
+                hashMap.put(key, hashMap.get(key) + mPlaces.get(i).getDuration());
             else
-                hashMap.put(key, mPlaces.get(i + 1).getTime() - mPlaces.get(i).getTime());
+                hashMap.put(key, mPlaces.get(i).getDuration());
         }
-
-        String key = mPlaces.get(mPlaces.size() - 1).getName();
-        if (hashMap.containsKey(key))
-            hashMap.put(key, hashMap.get(key) + System.currentTimeMillis() - mPlaces.get(mPlaces.size() - 1).getTime());
-        else
-            hashMap.put(key, System.currentTimeMillis() - mPlaces.get(mPlaces.size() - 1).getTime());
 
         HashMap.Entry<String, Long>[] longestVisitedPlaces = new HashMap.Entry[]{null, null, null};
 
@@ -137,5 +136,32 @@ public class StatisticsFragment extends Fragment {
         }
 
         return longestVisitedPlaces;
+    }
+
+    private int getTotalSum(int type) {
+        int totalSum = 0;
+        if (type == AssetInfo.WITHDRAW) {
+            for (int i = 0; i < mAssetInfos.size(); i++) {
+                if (mAssetInfos.get(i).getDepositOrWithdraw() == AssetInfo.WITHDRAW)
+                    totalSum += mAssetInfos.get(i).getSum();
+            }
+        } else {
+            for (int i = 0; i < mAssetInfos.size(); i++) {
+                if (mAssetInfos.get(i).getDepositOrWithdraw() == AssetInfo.DEPOSIT)
+                    totalSum += mAssetInfos.get(i).getSum();
+            }
+        }
+
+        return totalSum;
+    }
+
+    private String millisecTimeParser(long millisec) {
+        long sec = millisec/1000;
+        if (sec < 60) return sec + getString(R.string.sec);
+        else if (sec < 3600) return sec/60 + getString(R.string.min)
+                + " " + sec%60 + getString(R.string.sec);
+        else return sec/3600 + getString(R.string.hour)
+                    + " " + (sec%3600)/60 + getString(R.string.min)
+                    + " " + (sec%3600)%60 + getString(R.string.sec);
     }
 }

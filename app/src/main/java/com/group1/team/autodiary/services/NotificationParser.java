@@ -7,9 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+
+import com.group1.team.autodiary.objects.AssetInfo;
 
 /**
  * Created by q on 2017-01-21.
@@ -21,10 +24,10 @@ public class NotificationParser extends NotificationListenerService {
     public static final String GET_NOTIFICATION = "com.daily_reviewer.q.dailyreviewer.NotificationParser.getnotification";
 
     public interface Callback {
-        void callback(Intent intent);
+        void callback(AssetInfo assetInfo);
     }
 
-    public void collectNotificationData(Context context, Callback callback) {
+    public void collectAssetInfo(Context context, Callback callback) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(GET_NOTIFICATION);
 
@@ -32,7 +35,13 @@ public class NotificationParser extends NotificationListenerService {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d("DiaryService", "Get Notification!");
-                callback.callback(intent);
+                Bundle extras = intent.getBundleExtra("notification");
+
+                String[] parsedText = extras.getString(Notification.EXTRA_TEXT).split(" ");
+
+                AssetInfo assetInfo = new AssetInfo(parsedText[0], parsedText[1], parsedText[3] + " " + parsedText[4]);
+
+                callback.callback(assetInfo);
             }
         };
 
@@ -47,11 +56,11 @@ public class NotificationParser extends NotificationListenerService {
         Log.e(TAG, mNotification.toString());
 
         if (statusBarNotification.getPackageName().equalsIgnoreCase("com.wr.alrim")) {
-            String extra = mNotification.extras.toString();
-            Log.d(TAG, extra);
+            Bundle extras = mNotification.extras;
+            Log.d(TAG, extras.toString());
 
             Intent intent = new Intent(GET_NOTIFICATION);
-            intent.putExtra("notification", extra);
+            intent.putExtra("notification", extras);
             sendBroadcast(intent);
         }
     }
