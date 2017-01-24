@@ -6,16 +6,14 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.google.api.services.vision.v1.model.EntityAnnotation;
-import com.google.api.services.vision.v1.model.Property;
 import com.group1.team.autodiary.utils.ImageRecognitionRequest;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,10 +63,14 @@ public class PhotoManager {
             try {
                 final Bitmap bitmap = BitmapFactory.decodeFile(PATH + names.get(rand), options);
                 if (bitmap != null) {
-                    new Thread(() -> {
-                        callback.callback(bitmap, dates.get(rand),
-                                ImageRecognitionRequest.getLabel(new ImageRecognitionRequest(mContext).request(bitmap, ImageRecognitionRequest.REQUEST_LABEL)));
-                    }).start();
+                    if (isConnected()) {
+                        new Thread(() -> {
+                            callback.callback(bitmap, dates.get(rand),
+                                    ImageRecognitionRequest.getLabel(new ImageRecognitionRequest(mContext).request(bitmap, ImageRecognitionRequest.REQUEST_LABEL)));
+                        }).start();
+                    } else {
+                        callback.callback(bitmap, dates.get(rand), null);
+                    }
                 } else
                     callback.callback(null, 0, null);
             } catch (OutOfMemoryError e) {
@@ -76,5 +78,11 @@ public class PhotoManager {
                 callback.callback(null, 0, null);
             }
         }
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 }

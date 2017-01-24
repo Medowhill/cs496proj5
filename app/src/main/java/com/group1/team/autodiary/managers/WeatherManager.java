@@ -2,7 +2,8 @@ package com.group1.team.autodiary.managers;
 
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.Weather;
@@ -36,6 +37,9 @@ public class WeatherManager {
         if (location == null)
             return;
 
+        if (!isConnected())
+            return;
+
         new HttpRequest(mContext.getString(R.string.weatherUrl) + "weather?lat=" + location.getLatitude()
                 + "&lon=" + location.getLongitude() + "&APPID=" + mContext.getString(R.string.weatherKey),
                 in -> {
@@ -51,6 +55,11 @@ public class WeatherManager {
         List<Weather> forecasts = new ArrayList<>();
 
         if (location == null) {
+            callback.callback(forecasts);
+            return;
+        }
+
+        if (!isConnected()) {
             callback.callback(forecasts);
             return;
         }
@@ -75,5 +84,11 @@ public class WeatherManager {
                         callback.callback(forecasts);
                     }
                 }, IOException::printStackTrace).request();
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 }

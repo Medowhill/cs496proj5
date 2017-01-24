@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -141,6 +143,14 @@ public class SelfieManager {
     }
 
     private void detectFace(final Bitmap bitmap) {
+        if (bitmap == null || bitmap.isRecycled())
+            return;
+
+        if (!isConnected()) {
+            bitmap.recycle();
+            return;
+        }
+
         new Thread(() -> {
             FaceAnnotation face = ImageRecognitionRequest.getFace(new ImageRecognitionRequest(mContext).request(bitmap, ImageRecognitionRequest.REQUEST_FACE));
             if (face != null) {
@@ -168,6 +178,12 @@ public class SelfieManager {
                 }
             }
         }).start();
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     public FacePhoto getPhoto() {

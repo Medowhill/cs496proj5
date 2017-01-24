@@ -195,7 +195,7 @@ public class DiaryFragment extends Fragment implements TextToSpeech.OnInitListen
         mDiary += util.phoneToDiary(diaryActivity.getCallLogManager());
         mDiary += util.usageToDiary(diaryActivity.getUsages());
         mDiary += util.assetToDiary(diaryActivity.getAssetInfos());
-        mDiary += util.newsToDiary(diaryActivity.getNews().subList(0, 3));
+        mDiary += util.newsToDiary(diaryActivity.getNews());
         mDiary += util.musicToDiary(diaryActivity.getMusics());
         mDiary += util.weatherToDiary(diaryActivity.getForecasts(), false);
         mDiary += util.endToDiary();
@@ -291,6 +291,8 @@ public class DiaryFragment extends Fragment implements TextToSpeech.OnInitListen
     }
 
     public void load(long time) {
+        if (speech != null)
+            speech.stop();
         String name = getFileName(time);
 
         try {
