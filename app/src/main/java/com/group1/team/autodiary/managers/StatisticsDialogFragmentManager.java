@@ -10,6 +10,7 @@ import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.group1.team.autodiary.Adapters.AppUsageStatisticsAdapter;
 import com.group1.team.autodiary.Adapters.AssetInfoStatisticsAdapter;
@@ -47,27 +48,27 @@ public class StatisticsDialogFragmentManager {
             case R.id.call_log_view :
                 CallLogStatisticsAdapter callLogStatisticsAdapter = new CallLogStatisticsAdapter(mContext, R.layout.statistics_call_log_item, (List<CallLog>)history);
                 listView.setAdapter(callLogStatisticsAdapter);
-                builder.setTitle(mContext.getString(R.string.call_logs));
+                ((TextView) view.findViewById(R.id.statistics_title)).setText(mContext.getString(R.string.call_logs));
                 break;
             case R.id.total_spent_money_view :
                 AssetInfoStatisticsAdapter assetInfoStatisticsAdapter = new AssetInfoStatisticsAdapter(mContext, R.layout.statistics_call_log_item, (List<AssetInfo>)history);
                 listView.setAdapter(assetInfoStatisticsAdapter);
-                builder.setTitle(mContext.getString(R.string.asset_infos));
+                ((TextView) view.findViewById(R.id.statistics_title)).setText(mContext.getString(R.string.asset_infos));
                 break;
             case R.id.most_used_apps_view :
                 AppUsageStatisticsAdapter appUsageStatisticsAdapter = new AppUsageStatisticsAdapter(mContext, R.layout.statistics_call_log_item, (List<AppUsage>)history);
                 listView.setAdapter(appUsageStatisticsAdapter);
-                builder.setTitle(mContext.getString(R.string.app_usages));
+                ((TextView) view.findViewById(R.id.statistics_title)).setText(mContext.getString(R.string.app_usages));
                 break;
             case R.id.longest_visited_places_view :
                 VisitedPlaceStatisticsAdapter visitedPlaceStatisticsAdapter = new VisitedPlaceStatisticsAdapter(mContext, R.layout.statistics_call_log_item, (List<Place>)history);
                 listView.setAdapter(visitedPlaceStatisticsAdapter);
-                builder.setTitle(mContext.getString(R.string.visited_places));
+                ((TextView) view.findViewById(R.id.statistics_title)).setText(mContext.getString(R.string.visited_places));
                 break;
             case R.id.most_frequently_played_music_view :
                 PlayedMusicStatisticsAdapter playedMusicStatisticsAdapter = new PlayedMusicStatisticsAdapter(mContext, R.layout.statistics_call_log_item, (List<Music>)history);
                 listView.setAdapter(playedMusicStatisticsAdapter);
-                builder.setTitle(mContext.getString(R.string.played_musics));
+                ((TextView) view.findViewById(R.id.statistics_title)).setText(mContext.getString(R.string.played_musics));
                 break;
             default : return;
         }

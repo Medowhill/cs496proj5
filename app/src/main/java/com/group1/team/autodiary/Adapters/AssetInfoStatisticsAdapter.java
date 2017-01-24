@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.AppUsage;
@@ -40,7 +41,13 @@ public class AssetInfoStatisticsAdapter extends ArrayAdapter<AssetInfo> {
     @Override
     public View getView(int position, View convertView, ViewGroup viewGroup) {
         if (convertView == null)
-            convertView = inflater.inflate(R.layout.statistics_call_log_item, viewGroup, false);
+            convertView = inflater.inflate(R.layout.statistics_asset_info_item, viewGroup, false);
+
+        AssetInfo assetInfo = assetInfos.get(position);
+        ((TextView) convertView.findViewById(R.id.asset_info_item_date)).setText(assetInfo.getDate());
+        ((TextView) convertView.findViewById(R.id.asset_info_item_type)).setText(
+                assetInfo.getDepositOrWithdraw() == AssetInfo.DEPOSIT ? mContext.getString(R.string.deposit) : mContext.getString(R.string.withdraw));
+        ((TextView) convertView.findViewById(R.id.asset_info_item_sum)).setText(assetInfo.getSum() + mContext.getString(R.string.won));
 
         return convertView;
     }

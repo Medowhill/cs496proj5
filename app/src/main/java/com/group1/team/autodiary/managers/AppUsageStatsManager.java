@@ -41,7 +41,7 @@ public class AppUsageStatsManager {
         List<AppUsage> appUsageStats = new ArrayList<>();
         Log.d("AppUsageStatsManager", "start : " + new Date(dayStartTime).toString() + " / end : " + new Date(dayEndTime).toString());
 
-        if (Build.VERSION.SDK_INT > 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             final UsageStatsManager usageStatsManager = (UsageStatsManager) mContext.getSystemService(Context.USAGE_STATS_SERVICE);
             List<UsageStats> statsList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, dayStartTime, dayEndTime + TimeUnit.DAYS.toMillis(1));
 

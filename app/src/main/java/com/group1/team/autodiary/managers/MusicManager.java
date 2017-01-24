@@ -49,26 +49,29 @@ public class MusicManager {
                 String track = intent.getStringExtra("track");
 
                 if (track != null) {
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(100);
-                        } catch (Exception e) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(100);
+                            } catch (Exception e) {
+                            }
+
+                            Music playingMusicInfo = new Music(action, artist, album, track);
+
+                            if (action.equalsIgnoreCase("com.android.music.metachanged")) { // click next music
+                                if (metachangedStack) { // second metachange
+                                    metachangedStack = false;
+                                    callback.callback(playingMusicInfo);
+                                } else // first metacheange
+                                    metachangedStack = true;
+                            } else if (action.equalsIgnoreCase("com.android.music.playstatechanged")) { // play or pause
+                                if (!audioManager.isMusicActive())
+                                    callback.callback(playingMusicInfo);
+                            }
+
+                            Log.d("MusicManager", "Action : " + action + " / Music On? : " + audioManager.isMusicActive() + " / Command : " + cmd);
                         }
-
-                        Music playingMusicInfo = new Music(action, artist, album, track);
-
-                        if (action.equalsIgnoreCase("com.android.music.metachanged")) { // click next music
-                            if (metachangedStack) { // second metachange
-                                metachangedStack = false;
-                                callback.callback(playingMusicInfo);
-                            } else // first metacheange
-                                metachangedStack = true;
-                        } else if (action.equalsIgnoreCase("com.android.music.playstatechanged")) { // play or pause
-                            if (!audioManager.isMusicActive())
-                                callback.callback(playingMusicInfo);
-                        }
-
-                        Log.d("MusicManager", "Action : " + action + " / Music On? : " + audioManager.isMusicActive() + " / Command : " + cmd);
                     }).start();
                 }
             }

@@ -192,7 +192,8 @@ public class DiaryService extends Service implements GoogleApiClient.ConnectionC
     }
 
     private void collectAssetInfo() {
-        new NotificationParser().collectAssetInfo(getApplicationContext(), assetInfo -> {
+        new NotificationParser().collectAssetInfo(getApplicationContext(), parsedText -> {
+            AssetInfo assetInfo = new AssetInfo(getApplicationContext(), parsedText[0], parsedText[1], parsedText[3] + " " + parsedText[4]);
             assetInfos.add(assetInfo);
             Log.i(TAG, "asset info");
         });

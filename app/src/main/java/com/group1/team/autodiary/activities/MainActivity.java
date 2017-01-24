@@ -96,24 +96,23 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (!hasPackageUsageStatsPermission()) {
+            startActivityForResult(
+                    new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),
+                    REQUEST_PACKAGE_USAGE_STATS);
+        }
+
+        if (!hasNotificationListenerPermission()) {
+            startActivityForResult(
+                    new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"),
+                    REQUEST_NOTIFICATION_LISTENER_ENABLE);
+        }
+
+        if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(getApplicationContext())) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
                 startActivityForResult(intent, REQUEST_OVERLAY);
             }
-
-            if (!hasPackageUsageStatsPermission()) {
-                startActivityForResult(
-                        new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),
-                        REQUEST_PACKAGE_USAGE_STATS);
-            }
-
-            if (!hasNotificationListenerPermission()) {
-                startActivityForResult(
-                        new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"),
-                        REQUEST_NOTIFICATION_LISTENER_ENABLE);
-            }
-
             // if need more permissions, then plz add here
             requestPermissions(new String[]{
                     Manifest.permission.CAMERA,

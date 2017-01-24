@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.CallLog;
@@ -41,6 +42,22 @@ public class CallLogStatisticsAdapter extends ArrayAdapter<CallLog> {
         if (convertView == null)
             convertView = inflater.inflate(R.layout.statistics_call_log_item, viewGroup, false);
 
+        CallLog callLog = callLogs.get(position);
+
+        ((TextView) convertView.findViewById(R.id.call_log_item_name)).setText(callLog.getName());
+        ((TextView) convertView.findViewById(R.id.call_log_item_date)).setText(callLog.getCallDayTime().toString());
+        ((TextView) convertView.findViewById(R.id.call_log_item_time)).setText(millisecTimeParser(callLog.getCallDuration() * 1000));
+
         return convertView;
+    }
+
+    private String millisecTimeParser(long millisec) {
+        long sec = millisec/1000;
+        if (sec < 60) return sec + mContext.getString(R.string.sec);
+        else if (sec < 3600) return sec/60 + mContext.getString(R.string.min)
+                + " " + sec%60 + mContext.getString(R.string.sec);
+        else return sec/3600 + mContext.getString(R.string.hour)
+                    + " " + (sec%3600)/60 + mContext.getString(R.string.min)
+                    + " " + (sec%3600)%60 + mContext.getString(R.string.sec);
     }
 }

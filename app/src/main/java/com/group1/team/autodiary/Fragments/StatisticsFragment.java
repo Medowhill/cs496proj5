@@ -48,11 +48,11 @@ public class StatisticsFragment extends Fragment {
                     // call log part
                     CallLog longestCall = mCallLogManager.getLongestCall();
                     if (longestCall != null)
-                        ((TextView) view.findViewById(R.id.single_longest_call)).setText(longestCall.getName() + " - " + longestCall.getCallDuration());
+                        ((TextView) view.findViewById(R.id.single_longest_call)).setText(longestCall.getName() + " - " + millisecTimeParser(longestCall.getCallDuration() * 1000));
                     String[] longestCallPerson = mCallLogManager.getLongestCallPerson();
                     if (longestCallPerson != null)
-                        ((TextView) view.findViewById(R.id.longest_call_person)).setText(longestCallPerson[0] + " - " + longestCallPerson[1]);
-                    ((TextView) view.findViewById(R.id.total_call_time)).setText(millisecTimeParser(mCallLogManager.getTotalCallTime()));
+                        ((TextView) view.findViewById(R.id.longest_call_person)).setText(longestCallPerson[0] + " - " + millisecTimeParser(Long.valueOf(longestCallPerson[1]) * 1000));
+                    ((TextView) view.findViewById(R.id.total_call_time)).setText(millisecTimeParser(mCallLogManager.getTotalCallTime() * 1000));
 
                     // total spent money part
                     int totalWithdrawSum = getTotalSum(AssetInfo.WITHDRAW);

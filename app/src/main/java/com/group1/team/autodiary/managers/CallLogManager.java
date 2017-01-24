@@ -70,7 +70,7 @@ public class CallLogManager {
         CallLog longestCall = callLogs.get(0);
 
         for (int i = 1; i < callLogs.size(); i++) {
-            if (Long.valueOf(longestCall.getCallDuration()) < Long.valueOf(callLogs.get(i).getCallDuration()))
+            if (longestCall.getCallDuration() < callLogs.get(i).getCallDuration())
                 longestCall = callLogs.get(i);
         }
 
@@ -82,14 +82,14 @@ public class CallLogManager {
         HashMap<String, Long> hashMap = new HashMap<>();
 
         String longestCallPerson = callLogs.get(0).getName();
-        hashMap.put(longestCallPerson, Long.valueOf(callLogs.get(0).getCallDuration()));
+        hashMap.put(longestCallPerson, callLogs.get(0).getCallDuration());
 
         for (int i = 1; i < callLogs.size(); i++) {
             CallLog temp = callLogs.get(i);
             if (hashMap.containsKey(temp.getName()))
-                hashMap.put(temp.getName(), hashMap.get(temp.getName()) + Long.valueOf(temp.getCallDuration()));
+                hashMap.put(temp.getName(), hashMap.get(temp.getName()) + temp.getCallDuration());
             else
-                hashMap.put(temp.getName(), Long.valueOf(temp.getCallDuration()));
+                hashMap.put(temp.getName(), temp.getCallDuration());
 
             if (hashMap.get(longestCallPerson) < hashMap.get(temp.getName()))
                 longestCallPerson = temp.getName();
@@ -104,7 +104,7 @@ public class CallLogManager {
     public long getTotalCallTime() {
         long totalCallTime = 0;
         for (int i = 0; i < callLogs.size(); i++)
-            totalCallTime += Long.valueOf(callLogs.get(i).getCallDuration());
+            totalCallTime += callLogs.get(i).getCallDuration();
 
         return totalCallTime;
     }

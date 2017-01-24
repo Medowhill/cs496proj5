@@ -167,4 +167,7 @@
     <string name="visited_places">오늘 방문한 장소들</string>
     <string name="played_musics">오늘 감상한 음악들</string>
 
+    <string name="deposit">[입금]</string>
+    <string name="withdraw">[출금]</string>
+
 </resources>

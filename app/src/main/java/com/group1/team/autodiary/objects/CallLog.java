@@ -10,14 +10,14 @@ public class CallLog {
     private String phoneNumber;
     private String dir;
     private Date callDayTime;
-    private String callDuration;
+    private long callDuration;
     private String callName;
 
     public CallLog(String phoneNumber, String dir, Date callDayTime, String callDuration, String callName) {
         this.phoneNumber = phoneNumber;
         this.dir = dir;
         this.callDayTime = callDayTime;
-        this.callDuration = callDuration;
+        this.callDuration = Long.valueOf(callDuration);
         this.callName = callName;
     }
 
@@ -33,9 +33,9 @@ public class CallLog {
 
     public void setCallDayTime(Date callDayTime) { this.callDayTime = callDayTime; }
 
-    public String getCallDuration() { return callDuration; }
+    public long getCallDuration() { return callDuration; }
 
-    public void setCallDuration(String callDuration) { this.callDuration = callDuration; }
+    public void setCallDuration(long callDuration) { this.callDuration = callDuration; }
 
     public String getName() { return callName; }
 

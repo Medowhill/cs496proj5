@@ -24,7 +24,7 @@ public class NotificationParser extends NotificationListenerService {
     public static final String GET_NOTIFICATION = "com.daily_reviewer.q.dailyreviewer.NotificationParser.getnotification";
 
     public interface Callback {
-        void callback(AssetInfo assetInfo);
+        void callback(String[] parsedText);
     }
 
     public void collectAssetInfo(Context context, Callback callback) {
@@ -39,9 +39,7 @@ public class NotificationParser extends NotificationListenerService {
 
                 String[] parsedText = extras.getString(Notification.EXTRA_TEXT).split(" ");
 
-                AssetInfo assetInfo = new AssetInfo(parsedText[0], parsedText[1], parsedText[3] + " " + parsedText[4]);
-
-                callback.callback(assetInfo);
+                callback.callback(parsedText);
             }
         };
 

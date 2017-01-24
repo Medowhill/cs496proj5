@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+    <com.group1.team.autodiary.views.GamsungFontTextView
+        android:id="@+id/asset_info_item_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="시각"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.group1.team.autodiary.views.GamsungFontTextView
+            android:id="@+id/asset_info_item_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="[입금 / 출금]" />
+        <com.group1.team.autodiary.views.GamsungFontTextView
+            android:id="@+id/asset_info_item_sum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="얼마"/>
+    </LinearLayout>
+</LinearLayout>

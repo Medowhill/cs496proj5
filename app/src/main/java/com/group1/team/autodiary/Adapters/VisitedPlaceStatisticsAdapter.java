@@ -5,11 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.objects.AppUsage;
 import com.group1.team.autodiary.objects.Place;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,7 +42,11 @@ public class VisitedPlaceStatisticsAdapter extends ArrayAdapter<Place> {
     @Override
     public View getView(int position, View convertView, ViewGroup viewGroup) {
         if (convertView == null)
-            convertView = inflater.inflate(R.layout.statistics_call_log_item, viewGroup, false);
+            convertView = inflater.inflate(R.layout.statistics_visited_place_item, viewGroup, false);
+
+        Place place = places.get(position);
+        ((TextView) convertView.findViewById(R.id.visited_place_item_place)).setText(new Date(place.getTime()).toString() + " - " + new Date(place.getTime() + place.getDuration()).toString());
+        ((TextView) convertView.findViewById(R.id.visited_place_item_place)).setText(place.getName());
 
         return convertView;
     }

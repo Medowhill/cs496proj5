@@ -12,9 +12,9 @@
         <com.group1.team.autodiary.views.GamsungFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="누구와"/>
+            android:text="앱 이름"/>
         <com.group1.team.autodiary.views.GamsungFontTextView
-            android:id="@+id/call_log_item_name"
+            android:id="@+id/app_usage_item_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -26,23 +26,9 @@
         <com.group1.team.autodiary.views.GamsungFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="언제"/>
+            android:text="사용한 시간"/>
         <com.group1.team.autodiary.views.GamsungFontTextView
-            android:id="@+id/call_log_item_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="몇시 몇분 몇초"/>
-    </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.group1.team.autodiary.views.GamsungFontTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="얼마동안"/>
-        <com.group1.team.autodiary.views.GamsungFontTextView
-            android:id="@+id/call_log_item_time"
+            android:id="@+id/app_usage_item_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"

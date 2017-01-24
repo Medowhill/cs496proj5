@@ -40,7 +40,7 @@ public class PlayedMusicStatisticsAdapter extends ArrayAdapter<Music> {
     @Override
     public View getView(int position, View convertView, ViewGroup viewGroup) {
         if (convertView == null)
-            convertView = inflater.inflate(R.layout.statistics_call_log_item, viewGroup, false);
+            convertView = inflater.inflate(R.layout.statistics_played_music_item, viewGroup, false);
 
         return convertView;
     }

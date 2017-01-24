@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="200dp"
-    android:layout_height="200dp">
-    L<ListView
-    android:id="@+id/statistics"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_width="160dp"
+    android:layout_height="200dp"
+    android:paddingTop="8dp">
+    <com.group1.team.autodiary.views.GamsungFontTextView
+        android:id="@+id/statistics_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="무슨 통계"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+    <ListView
+        android:id="@+id/statistics"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </LinearLayout>

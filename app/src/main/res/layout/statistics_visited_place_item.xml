@@ -12,13 +12,13 @@
         <com.group1.team.autodiary.views.GamsungFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="누구와"/>
+            android:text="얼마나"/>
         <com.group1.team.autodiary.views.GamsungFontTextView
-            android:id="@+id/call_log_item_name"
+            android:id="@+id/visited_place_item_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="이름"/>
+            android:text="몇시 몇분 몇초부터 몇시 몇분 몇초까지"/>
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
@@ -26,26 +26,12 @@
         <com.group1.team.autodiary.views.GamsungFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="언제"/>
+            android:text="어디에"/>
         <com.group1.team.autodiary.views.GamsungFontTextView
-            android:id="@+id/call_log_item_date"
+            android:id="@+id/visited_place_item_place"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="몇시 몇분 몇초"/>
-    </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.group1.team.autodiary.views.GamsungFontTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="얼마동안"/>
-        <com.group1.team.autodiary.views.GamsungFontTextView
-            android:id="@+id/call_log_item_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="몇시간 몇분 몇초"/>
+            android:text="장소"/>
     </RelativeLayout>
 </LinearLayout>
