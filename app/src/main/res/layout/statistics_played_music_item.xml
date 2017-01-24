@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="5dp"
+    android:orientation="vertical"
     android:paddingBottom="5dp"
     android:paddingLeft="10dp"
-    android:paddingRight="10dp">
+    android:paddingRight="10dp"
+    android:paddingTop="5dp">
+
     <com.group1.team.autodiary.views.GamsungFontTextView
         android:id="@+id/played_music_item_name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="무슨 곡"/>
+        android:layout_height="wrap_content" />
+
     <com.group1.team.autodiary.views.GamsungFontTextView
         android:id="@+id/played_music_item_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="몇회"/>
+        android:layout_alignParentRight="true" />
 </RelativeLayout>
