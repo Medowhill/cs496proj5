@@ -13,7 +13,6 @@ import com.group1.team.autodiary.R;
 import com.group1.team.autodiary.activities.DiaryActivity;
 import com.group1.team.autodiary.managers.CallLogManager;
 import com.group1.team.autodiary.managers.MusicManager;
-import com.group1.team.autodiary.managers.StatisticsDialogFragmentManager;
 import com.group1.team.autodiary.objects.AppUsage;
 import com.group1.team.autodiary.objects.AssetInfo;
 import com.group1.team.autodiary.objects.CallLog;
@@ -60,15 +59,17 @@ public class StatisticsFragment extends Fragment {
 
                     // app usage part
 
-                    if (mAppUsages.get(0).getTime() != 0) {
-                        ((TextView) view.findViewById(R.id.first_most_used_app)).setText(mAppUsages.get(0).getName());
-                        ((TextView) view.findViewById(R.id.first_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(0).getTime()));
-                        if (mAppUsages.get(1).getTime() != 0) {
-                            ((TextView) view.findViewById(R.id.second_most_used_app)).setText(mAppUsages.get(1).getName());
-                            ((TextView) view.findViewById(R.id.second_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(1).getTime()));
-                            if (mAppUsages.get(2).getTime() != 0) {
-                                ((TextView) view.findViewById(R.id.third_most_used_app)).setText(mAppUsages.get(2).getName());
-                                ((TextView) view.findViewById(R.id.third_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(2).getTime()));
+                    if (!mAppUsages.isEmpty()) {
+                        if (mAppUsages.get(0).getTime() != 0) {
+                            ((TextView) view.findViewById(R.id.first_most_used_app)).setText(mAppUsages.get(0).getName());
+                            ((TextView) view.findViewById(R.id.first_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(0).getTime()));
+                            if (mAppUsages.get(1).getTime() != 0) {
+                                ((TextView) view.findViewById(R.id.second_most_used_app)).setText(mAppUsages.get(1).getName());
+                                ((TextView) view.findViewById(R.id.second_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(1).getTime()));
+                                if (mAppUsages.get(2).getTime() != 0) {
+                                    ((TextView) view.findViewById(R.id.third_most_used_app)).setText(mAppUsages.get(2).getName());
+                                    ((TextView) view.findViewById(R.id.third_most_used_app_time)).setText(millisecTimeParser(mAppUsages.get(2).getTime()));
+                                }
                             }
                         }
                     }
@@ -157,12 +158,12 @@ public class StatisticsFragment extends Fragment {
     }
 
     private String millisecTimeParser(long millisec) {
-        long sec = millisec/1000;
+        long sec = millisec / 1000;
         if (sec < 60) return sec + getString(R.string.sec);
-        else if (sec < 3600) return sec/60 + getString(R.string.min)
-                + " " + sec%60 + getString(R.string.sec);
-        else return sec/3600 + getString(R.string.hour)
-                    + " " + (sec%3600)/60 + getString(R.string.min)
-                    + " " + (sec%3600)%60 + getString(R.string.sec);
+        else if (sec < 3600) return sec / 60 + getString(R.string.min)
+                + " " + sec % 60 + getString(R.string.sec);
+        else return sec / 3600 + getString(R.string.hour)
+                    + " " + (sec % 3600) / 60 + getString(R.string.min)
+                    + " " + (sec % 3600) % 60 + getString(R.string.sec);
     }
 }
