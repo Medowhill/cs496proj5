@@ -1,5 +1,11 @@
 package com.group1.team.autodiary.managers;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+import com.group1.team.autodiary.R;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -14,22 +20,27 @@ public class NewsManager {
         void callback(List<String> news);
     }
 
-    private String mUrl, mSelection;
+    private Context mContext;
 
-    public NewsManager(String url, String selection) {
-        mUrl = url;
-        mSelection = selection;
+    public NewsManager(Context context) {
+        mContext = context;
     }
 
     public void getNews(Callback callback) {
         List<String> news = new ArrayList<>();
+
+        if (!isConnected()) {
+            callback.callback(news);
+            return;
+        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 {
                     try {
-                        Document document = Jsoup.connect(mUrl).get();
-                        Elements titles = document.select(mSelection);
+                        Document document = Jsoup.connect(mContext.getString(R.string.newsUrl)).get();
+                        Elements titles = document.select(mContext.getString(R.string.newsSelection));
                         for (int i = 0; i < titles.size(); i += 3)
                             news.add(titles.get(i).text());
                         callback.callback(news);
@@ -39,5 +50,11 @@ public class NewsManager {
                 }
             }
         }).start();
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 }

@@ -17,13 +17,13 @@ import com.group1.team.autodiary.R;
 
 public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final int LOADING_PERIOD = 50, WAITING_PERIOD = 600;
+    private static final int LOADING_PERIOD = 50, WAITING_PERIOD = 500;
 
     private TextThread mThread;
     private String[] mLoadings;
     private int mLoadingIndex, mLoadingLength;
     private int mWidth, mHeight;
-    private boolean mStart;
+    private boolean mStart, mTouch = true;
     private Paint paint;
 
     public LoadingView(Context context, AttributeSet attrs) {
@@ -88,10 +88,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mThread == null)
-            return false;
-
-        return mStart && !mThread.mClear;
+        return mTouch;
     }
 
     private class TextThread extends Thread {
@@ -114,7 +111,6 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
                     synchronized (mHolder) {
                         if (++mLoadingLength > mLoadings[mLoadingIndex].length()) {
                             mLoadingLength = 0;
-                            wait = true;
                             if (++mLoadingIndex >= mLoadings.length)
                                 mLoadingIndex = 0;
                         }
@@ -124,6 +120,8 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
                             break;
                         if (canvas != null)
                             canvas.drawText(mLoadings[mLoadingIndex].substring(0, mLoadingLength), (mWidth - getTextWidth(mLoadings[mLoadingIndex])) / 2, mHeight / 2, paint);
+                        if (mLoadingLength == mLoadings[mLoadingIndex].length())
+                            wait = true;
                     }
                 } finally {
                     if (canvas != null)
@@ -136,6 +134,7 @@ public class LoadingView extends SurfaceView implements SurfaceHolder.Callback {
                     e.printStackTrace();
                 }
             }
+            mTouch = false;
         }
     }
 }

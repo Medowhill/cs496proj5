@@ -86,7 +86,7 @@ public class DiaryActivity extends AppCompatActivity {
             unbindService(connection);
             stopService(new Intent(getApplicationContext(), DiaryService.class));
 
-            new NewsManager(getString(R.string.newsUrl), getString(R.string.newsSelection)).getNews(news -> {
+            new NewsManager(getApplicationContext()).getNews(news -> {
                 mNews = news;
                 Log.i(TAG, "load news");
                 synchronized (mLockObject) {

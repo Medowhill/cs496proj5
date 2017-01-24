@@ -224,9 +224,13 @@ public class DiaryUtil {
             return "";
 
         String str = "";
-        for (String news_ : news) {
+        int count = 0;
+        for (int i = 0; i < news.size() && count < 3; i += (int) (Math.random() + 1)) {
+            String news_ = news.get(i);
             news_ = news_.replace((char) 8230, ' ');
             news_ = news_.replace((char) 26420, (char) 48149);
+            news_ = news_.replace((char) 21069, (char) 51204);
+            news_ = news_.replace((char) 38867, (char) 54620);
             news_ = news_.replace("\"", "");
             news_ = news_.replaceAll("\'", "");
             int index;
@@ -244,6 +248,7 @@ public class DiaryUtil {
             }
             news_ = news_.trim();
             str += news_ + ", ";
+            count++;
         }
         str = str.substring(0, str.length() - 2);
         str += hasLastSound(str) ? gwa : wa;
